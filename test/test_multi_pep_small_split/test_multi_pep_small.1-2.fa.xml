@@ -1,0 +1,26 @@
+<interpro_matches>
+
+   <protein id="001R_FRG3G" length="256" crc64="B4840739BF7D4121" >
+	<interpro id="IPR007031" name="Poxvirus VLTF3, late transcription factor" type="Family">
+	  <classification id="GO:0016563" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>transcription activator activity</description>
+	  </classification>
+	  <classification id="GO:0046782" class_type="GO">
+	    <category>Biological Process</category>
+	    <description>regulation of viral transcription</description>
+	  </classification>
+	  <match id="PF04947" name="Pox_VLTF3" dbname="PFAM">
+	    <location start="82" end="255" score="2.5999999999999822E-48" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="002L_FRG3G" length="320" crc64="9E110808B6E328E0" >
+	<interpro id="IPR004251" name="Protein of unknown function DUF230, poxvirus" type="Family">
+	  <match id="PF03003" name="DUF230" dbname="PFAM">
+	    <location start="169" end="241" score="2.6000000000000003E-4" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+   </protein>
+
+</interpro_matches>

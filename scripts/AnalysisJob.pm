@@ -1,6 +1,7 @@
 package AnalysisJob;
 
 use strict;
+use FileHandle;
 
 sub new {
     my ($class) = @_;
@@ -41,6 +42,70 @@ sub submit {
 
     }
 }
+
+sub toSingleLine {
+    my ($self) = @_;
+
+    my $str = $self->{bsubfile};
+
+    $str .= "\t" . $self->{jobid};
+
+    my $key;
+    my $value;
+
+    $str .= "\t";
+
+    while ( ($key, $value) = each %{$self->{input}} ){
+	$str .= "$key=>$value,";
+    }
+    $str .= "\t";
+    foreach my $outfile (@{$self->{outputfiles}}) {
+	$str .= "$outfile,";
+    }
+    return $str;
+}
+    
+sub submitLSFJob {
+    my ($self,$inputfile,$cmd) = @_;
+
+    my $jobstub  =   $inputfile;
+    my $jobdir   =   $inputfile;
+
+    $jobdir   =~ s/^(\/.*\/).*/$1/;
+    $jobstub     =~  s/^\/.*\///;
+
+    my $jobfilename = "$jobdir/$jobstub.job";
+
+    print "Job stub/dir $jobstub $jobdir\n";
+    print "Got job file $jobfilename";
+
+    my $jfh = new FileHandle();
+    $jfh->open(">$jobfilename");
+
+    print $jfh "#/bin/bash\n";
+    print $jfh "#BSUB -u michele.clamp\@gmail.com\n";
+    print $jfh "#BSUB -J $jobstub\n";
+    print $jfh "#BSUB -o $jobdir/$jobstub.bout\n";
+    print $jfh "#BSUB -e $jobdir/$jobstub.berr\n";
+    print $jfh "#BSUB -q short_serial\n";
+    print $jfh "#BSUB -C 0\n";
+    print $jfh $cmd . "\n";
+
+    $jfh->close();
+
+    $self->{bsubfile}  = $jobfilename;
+    $self->{bsubdir}   = $jobdir;
+    $self->{bsubstub}  = $jobstub;
+    
+    my $jobid = `bsub < $jobfilename`;
+
+    $jobid =~ s/.*<(.*?)>.*<(.*?)>.*\n/$1/;
+
+    $self->{jobid} = $jobid;
+    
+    return $jobid;
+}
+
 sub init {
     my $self = shift;
 }

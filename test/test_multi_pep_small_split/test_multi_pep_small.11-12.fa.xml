@@ -1,0 +1,11 @@
+<interpro_matches>
+
+   <protein id="007R_IIV3" length="447" crc64="BE02EE24D34C1B46" >
+	<interpro id="noIPR" name="unintegrated" type="unintegrated">
+	  <match id="PF10927" name="DUF2738" dbname="PFAM">
+	    <location start="182" end="428" score="6.799999999999901E-85" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+   </protein>
+
+</interpro_matches>

@@ -1,0 +1,8 @@
+#/bin/bash
+#BSUB -u michele.clamp@gmail.com
+#BSUB -J test_multi_pep_small.15-16.fa
+#BSUB -o /n/home00/mclamp/git/harvard-informatics/test/test_multi_pep_small_split//test_multi_pep_small.15-16.fa.bout
+#BSUB -e /n/home00/mclamp/git/harvard-informatics/test/test_multi_pep_small_split//test_multi_pep_small.15-16.fa.berr
+#BSUB -q short_serial
+#BSUB -C 0
+iprscan -cli -i /n/home00/mclamp/git/harvard-informatics/test/test_multi_pep_small_split/test_multi_pep_small.15-16.fa -o /n/home00/mclamp/git/harvard-informatics/test/test_multi_pep_small_split/test_multi_pep_small.15-16.fa.xml -format xml -iprlookup -goterms -altjobs -appl hmmpfam

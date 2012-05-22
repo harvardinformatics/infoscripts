@@ -1,0 +1,11 @@
+<interpro_matches>
+
+   <protein id="005R_FRG3G" length="204" crc64="13AC9A179015F769" >
+	<interpro id="IPR003360" name="Herpesvirus US22-like" type="Family">
+	  <match id="PF02393" name="US22" dbname="PFAM">
+	    <location start="38" end="180" score="6.3E-4" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+   </protein>
+
+</interpro_matches>
