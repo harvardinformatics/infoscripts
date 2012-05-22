@@ -11,17 +11,19 @@ my $cwd  = `pwd`; chomp($cwd);
 
 eval {
 
-    my $outdir =  "$cwd/test_multi_pep_fasta_split";
+    my $outdir =  "$cwd/test_multi_pep_small_split";
 
     if (-d $outdir) {
 	`rm -rf $outdir`;
     }
 
-    my $testfile = "test_multi_pep_fasta.fa";
+    my $testfile = "test_multi_pep_small.fa";
     
     my $iprjob   = new IprscanJob();
 
     $iprjob->is_multijob(1);
+
+    $test->result($iprjob->chunksize(2) == 2,"Test chunksize changing");
 
     $test->result($iprjob->is_multijob() == 1,"Testing multijob status");
 
@@ -31,13 +33,13 @@ eval {
 
     my $jobs = $iprjob->submit();
 
-    $test->result($#$jobs == 1,"Test number of multijobs");
+    $test->result($#$jobs == 8,"Test number of multijobs");
 
     my $outfiles= $jobs->[1]->{outputfiles};
 
     $test->result(scalar(@$outfiles) == 1,"Test number of output files");
 
-    $test->result($outfiles->[0] eq "$cwd/test_multi_pep_fasta_split/test_multi_pep_fasta.1001-1727.fa.xml","Testing output filename");
+    $test->result($outfiles->[0] eq "$cwd/test_multi_pep_small_split/test_multi_pep_small.3-4.fa.xml","Testing output filename");
 
 };
 

@@ -13,7 +13,7 @@ sub new {
 	filestub       => undef,
 	splitfiles     => [],
 	outdir         => $_outdir,
-	chunk          => 1000,
+	chunksize      => 1000,
 	input_checked  => 0,
 	outdir_created => 0,
     };
@@ -87,7 +87,7 @@ sub splitFile {
      my $infile = $self->{file};
      my $outdir = $self->{outdir};
      my $stub   = $self->{filestub};
-     my $chunk  = $self->{chunk};
+     my $chunk  = $self->{chunksize};
 
      my $infh = new FileHandle();
 
@@ -136,7 +136,7 @@ sub writeSeqs {
     my ($self,$ids,$seqs,$count) = @_;
     
     my $outdir = $self->{outdir};
-    my $chunk  = $self->{chunk};
+    my $chunk  = $self->{chunksize};
     my $stub   = $self->{filestub};
 
     my @ids    = @$ids;
