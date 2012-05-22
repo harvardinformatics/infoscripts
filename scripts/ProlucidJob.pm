@@ -1,27 +1,22 @@
-package IprscanJob;
+package ProlucidJob;
 
 use strict;
 
 use AnalysisJob;
-use FastaSplitter;
+use MS2Splitter;
 use Data::Dumper;
 
-our @ISA = qw(AnalysisJob);
+our @ISA = qw(ProlucidJob);
 
 sub new {
     my ($class) = @_;
 
-    my $self = $class->SUPER::new("Iprscan");
+    my $self = $class->SUPER::new("Prolucid");
 
     bless $self, $class;
 
     return $self;
 }
-
-sub init {
-    my $self = shift;
-}
-
 
 sub submitMultiJob {
     my ($self) = @_;
@@ -30,11 +25,11 @@ sub submitMultiJob {
 
     if (!$input)                             { die "No input for Iprscan analysis job. Can't submit";}
     
-    if (!$input->{'Input_1:MultiFastaFile'}) { die "No fasta file input for Iprscan analysis job. Can't submit";}
+    if (!$input->{'Input_1:MultiMS2File'}) { die "No fasta file input for Iprscan analysis job. Can't submit";}
     
-    my $inputfile = $input->{'Input_1:MultiFastaFile'};
+    my $inputfile = $input->{'Input_1:MultiMS2File'};
 
-    my $fs        = new FastaSplitter($inputfile);
+    my $fs        = new MS2Splitter($inputfile);
     $fs->{chunksize}  = $self->chunksize();
     my $files     = $fs->split();
 
@@ -48,9 +43,9 @@ sub submitMultiJob {
 
     foreach my $file (@$files) {
 
-	my $tmpjob = new IprscanJob();
+	my $tmpjob = new ProlucidJob();
 
-	$tmpjob->input({"Input_1:FastaFile",$file});
+	$tmpjob->input({"Input_1:MS2File",$file});
 
 	push(@jobs,$tmpjob);
 
@@ -74,17 +69,27 @@ sub submitSingleJob {
 
     my $input = $self->input();
 
-    if (!$input)                             { die "No input for Iprscan analysis job. Can't submit";}
+    if (!$input)                             { die "No input for Prolucid analysis job. Can't submit";}
     
-    if (!$input->{'Input_1:FastaFile'}) { die "No fasta file input for Iprscan analysis job. Can't submit";}
-    
-    my $inputfile = $input->{'Input_1:FastaFile'};
+    if (!$input->{'Input_1:MS2File'})       { die "No MS2 file input for Prolucid analysis job. Can't submit";}
+    if (!$input->{'Input_2:SearchXMLFile'}) { die "No search.xml input for Prolucid analysis job. Can't submit";}
 
-    my $cmd = "iprscan -cli -i $inputfile -o $inputfile.xml -format xml -iprlookup -goterms -altjobs -appl hmmpfam";
+    my $inputfile = $input->{'Input_1:MS2File'};
+    my $searchxml = $input->{'Input_1:SearchXMLFile'};
+
+    my $cwd       = $self->{'cwd'};
+
+    #my $cmd = "iprscan -cli -i $inputfile -o $inputfile.xml -format xml -iprlookup -goterms -altjobs -appl hmmpfam";
+
+    my $prolucidjarfile       = "/n/ip2/ip2sys/lib/ProLuCID1_3.jar";
+    my $cmd                   = "/n/ip2/ip2sys/jdk1.6.0_21_64/bin/java -Xmx4144M -jar $prolucidjarfile $cwd/$splitfile.ms2 $searchxml 2";
 
     print "Command is ".substr($cmd,0,100) . "...\n";
     
-    $self->{outputfiles} = [$inputfile.".xml"];
+    my $inputstub = $inputfile;
+    $inputstub =~ s/(.*)\..*?/$1/;
+
+    $self->{outputfiles} = [$inputstub.".sqt"];
 
     my $jobid = $self->submitLSFJob($inputfile,$cmd);
 

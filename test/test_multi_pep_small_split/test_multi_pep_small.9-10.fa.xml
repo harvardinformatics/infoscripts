@@ -1,0 +1,23 @@
+<interpro_matches>
+
+   <protein id="006L_IIV6" length="352" crc64="3519C5E9E45A8AB6" >
+	<interpro id="IPR018004" name="KilA, N-terminal/APSES-type HTH, DNA-binding" type="Domain">
+	  <child_list>
+	    <rel_ref ipr_ref="IPR003163"/>
+	    <rel_ref ipr_ref="IPR017880"/>
+	  </child_list>
+	  <found_in>
+	    <rel_ref ipr_ref="IPR016398"/>
+	 </found_in>
+	  <match id="PF04383" name="KilA-N" dbname="PFAM">
+	    <location start="21" end="123" score="3.099999999999981E-17" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	<interpro id="IPR022549" name="Domain of unknown function DUF3627" type="Domain">
+	  <match id="PF12299" name="DUF3627" dbname="PFAM">
+	    <location start="232" end="323" score="7.399999999999997E-17" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+   </protein>
+
+</interpro_matches>

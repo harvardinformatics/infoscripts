@@ -1,0 +1,44 @@
+Sender: LSF System <lsfadmin@hero4009>
+Subject: Job 28157336: <test_multi_pep_small.17-17.fa> Done
+
+Job <test_multi_pep_small.17-17.fa> was submitted from host <rclogin06> by user <mclamp> in cluster <lsf-odyssey>.
+Job was executed on host(s) <hero4009>, in queue <short_serial>, as user <mclamp> in cluster <lsf-odyssey>.
+</n/home00/mclamp> was used as the home directory.
+</n/home00/mclamp/git/harvard-informatics/test> was used as the working directory.
+Started at Tue May 22 16:51:05 2012
+Results reported at Tue May 22 16:51:29 2012
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#/bin/bash
+#BSUB -u michele.clamp@gmail.com
+#BSUB -J test_multi_pep_small.17-17.fa
+#BSUB -o /n/home00/mclamp/git/harvard-informatics/test/test_multi_pep_small_split//test_multi_pep_small.17-17.fa.bout
+#BSUB -e /n/home00/mclamp/git/harvard-informatics/test/test_multi_pep_small_split//test_multi_pep_small.17-17.fa.berr
+#BSUB -q short_serial
+#BSUB -C 0
+iprscan -cli -i /n/home00/mclamp/git/harvard-informatics/test/test_multi_pep_small_split/test_multi_pep_small.17-17.fa -o /n/home00/mclamp/git/harvard-informatics/test/test_multi_pep_small_split/test_multi_pep_small.17-17.fa.xml -format xml -iprlookup -goterms -altjobs -appl hmmpfam
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time   :      1.55 sec.
+    Max Memory :         2 MB
+    Max Swap   :        24 MB
+
+    Max Processes  :         1
+    Max Threads    :         1
+
+The output (if any) follows:
+
+
+
+PS:
+
+Read file </n/home00/mclamp/git/harvard-informatics/test/test_multi_pep_small_split//test_multi_pep_small.17-17.fa.berr> for stderr output of this job.
+

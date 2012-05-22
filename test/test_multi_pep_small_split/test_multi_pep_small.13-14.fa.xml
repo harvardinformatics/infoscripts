@@ -1,0 +1,58 @@
+<interpro_matches>
+
+   <protein id="009L_FRG3G" length="948" crc64="FD4765111B43B4FF" >
+	<interpro id="IPR000330" name="SNF2-related" type="Domain">
+	  <contains>
+	    <rel_ref ipr_ref="IPR014001"/>
+	  </contains>
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding</description>
+	  </classification>
+	  <classification id="GO:0005524" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>ATP binding</description>
+	  </classification>
+	  <match id="PF00176" name="SNF2_N" dbname="PFAM">
+	    <location start="56" end="243" score="6.099999999999999E-9" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001650" name="Helicase, C-terminal" type="Domain">
+	  <found_in>
+	    <rel_ref ipr_ref="IPR000185"/>
+	    <rel_ref ipr_ref="IPR004576"/>
+	    <rel_ref ipr_ref="IPR004589"/>
+	    <rel_ref ipr_ref="IPR004609"/>
+	    <rel_ref ipr_ref="IPR004807"/>
+	    <rel_ref ipr_ref="IPR005259"/>
+	    <rel_ref ipr_ref="IPR006293"/>
+	    <rel_ref ipr_ref="IPR006474"/>
+	    <rel_ref ipr_ref="IPR010222"/>
+	    <rel_ref ipr_ref="IPR010225"/>
+	    <rel_ref ipr_ref="IPR013444"/>
+	    <rel_ref ipr_ref="IPR014018"/>
+	    <rel_ref ipr_ref="IPR014412"/>
+	    <rel_ref ipr_ref="IPR016438"/>
+	    <rel_ref ipr_ref="IPR017170"/>
+	    <rel_ref ipr_ref="IPR017575"/>
+	    <rel_ref ipr_ref="IPR022307"/>
+	 </found_in>
+	  <classification id="GO:0003676" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>nucleic acid binding</description>
+	  </classification>
+	  <classification id="GO:0004386" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>helicase activity</description>
+	  </classification>
+	  <classification id="GO:0005524" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>ATP binding</description>
+	  </classification>
+	  <match id="PF00271" name="Helicase_C" dbname="PFAM">
+	    <location start="423" end="496" score="8.69999999999999E-7" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+   </protein>
+
+</interpro_matches>
