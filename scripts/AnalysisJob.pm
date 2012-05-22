@@ -24,11 +24,24 @@ sub new {
     return $self;
 }
 
-sub init {
-    my $self = shift;
-}
-
 sub submit {
+    my $self = shift;
+
+    if ($self->is_multijob())              {
+
+	my $jobs = $self->submitMultiJob();
+
+	return $jobs;
+
+    } else {
+
+	$self->submitSingleJob();
+
+	return [$self];
+
+    }
+}
+sub init {
     my $self = shift;
 }
 
@@ -60,6 +73,12 @@ sub read {
 
 
 # Getsets from here
+sub chunksize{
+    my $self = shift;
+
+    return $self->{'chunksize'} = shift if @_;
+    return $self->{'chunksize'};
+}
 
 sub id{
     my $self = shift;
