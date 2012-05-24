@@ -1,8 +1,7 @@
-lock tables;
 
-DROP TABLE IF EXISTS `finishJob`;
+DROP TABLE IF EXISTS `finish_job`;
 
-CREATE TABLE `finishJob` (
+CREATE TABLE `finish_job` (
 `internal_id` MEDIUMINT UNIQUE NOT NULL AUTO_INCREMENT,
 `job_id` INTEGER DEFAULT NULL,
 `user_id` INTEGER DEFAULT NULL,
@@ -10,9 +9,9 @@ CREATE TABLE `finishJob` (
 `options` INTEGER DEFAULT NULL,
 `num_processors` INTEGER DEFAULT NULL,
 `j_status` INTEGER DEFAULT NULL,
-`submit_time` TIMESTAMP DEFAULT NULL,
-`start_time` TIMESTAMP DEFAULT NULL,
-`end_time` TIMESTAMP DEFAULT NULL,
+`submit_time` text(30) DEFAULT NULL,
+`start_time` text(30) DEFAULT NULL,
+`end_time` text(30) DEFAULT NULL,
 `queue` text(255) DEFAULT NULL,
 `resource_req` text(255) DEFAULT NULL,
 `from_host` text(255) DEFAULT NULL,
@@ -28,6 +27,8 @@ CREATE TABLE `finishJob` (
 `host_factor` DOUBLE DEFAULT NULL,
 `num_ex_hosts` INTEGER DEFAULT NULL,
 `exec_hosts` text(255) DEFAULT NULL,
+`cpu_time` DOUBLE DEFAULT NULL,
+`job_name` text(255) DEFAULT NULL,
 `depend_cond` text(255) DEFAULT NULL,
 `time_event` text(255) DEFAULT NULL,
 `pre_exec_cmd` text(255) DEFAULT NULL,
@@ -55,13 +56,19 @@ CREATE TABLE `finishJob` (
 `options2` INTEGER DEFAULT NULL,
 `requeue_e_values` text(255) DEFAULT NULL,
 `notify_cmd` text(255) DEFAULT NULL,
-`last_resize_time` TIMESTAMP DEFAULT NULL,
+`last_resize_time` text(30) DEFAULT NULL,
 `job_description` text(255) DEFAULT NULL,
-PRIMARY KEY (internal_id),
-KEY `job_id_idx` (`job_id`(255)),
-KEY `user_id_idx` (`user_id`(255)),
-KEY `user_name_idx` (`user_name`(255)),
-KEY `queue_idx` (`queue(255)),
+`command` mediumtext default null,
+ primary key (internal_id),
+ key(job_id),
+ key(user_id),
+ key(user_name(255)),
+ key(submit_time(30)),
+ key(start_time(30)),
+ key(end_time(30)),
+ key(queue(255)),
+ key(cwd(255))
+
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 unlock tables;
