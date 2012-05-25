@@ -2,7 +2,7 @@
 DROP TABLE IF EXISTS `finish_job`;
 
 CREATE TABLE `finish_job` (
-`internal_id` MEDIUMINT UNIQUE NOT NULL AUTO_INCREMENT,
+`internal_id` INT UNIQUE NOT NULL AUTO_INCREMENT,
 `job_id` INTEGER DEFAULT NULL,
 `user_id` INTEGER DEFAULT NULL,
 `user_name` text(255) DEFAULT NULL,
