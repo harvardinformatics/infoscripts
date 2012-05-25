@@ -1,5 +1,9 @@
 #!/usr/bin/perl
 
+
+#  ldapsearch -w 'p$e9e!A2' -x -h dc2-rc -D 'clusterldap@rc.domain' -b 'dc=rc,dc=domain'  '(uid=*)' |egrep "sAMAccountName" |awk '{print $2}' |xargs groups > all_users_groups.dat
+
+
 use strict;
 use DBI;
 
