@@ -37,6 +37,8 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
 
+    struct jobFinishLog *finishJob;
+
     for (;;) {
 
         record = lsb_geteventrec(fp, &lineNum);
@@ -51,7 +53,7 @@ int main(int argc, char *argv[]) {
 
 	if (record->type == EVENT_JOB_FINISH) {
 	  
-            finishJob = &(record->eventLog.jobFinishLog);
+	  finishJob = &(record->eventLog.jobFinishLog);
 	    
 	    int    jobId         = finishJob->jobId;
 	    int    userId        = finishJob->userId;
