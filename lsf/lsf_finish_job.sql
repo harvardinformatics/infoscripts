@@ -2,16 +2,16 @@
 DROP TABLE IF EXISTS `finish_job`;
 
 CREATE TABLE `finish_job` (
-`internal_id` INT UNIQUE NOT NULL AUTO_INCREMENT,
+`internal_id` INT NOT NULL AUTO_INCREMENT,
 `job_id` INTEGER DEFAULT NULL,
 `user_id` INTEGER DEFAULT NULL,
 `user_name` text(255) DEFAULT NULL,
 `options` INTEGER DEFAULT NULL,
 `num_processors` INTEGER DEFAULT NULL,
 `j_status` INTEGER DEFAULT NULL,
-`submit_time` text(30) DEFAULT NULL,
-`start_time` text(30) DEFAULT NULL,
-`end_time` text(30) DEFAULT NULL,
+`submit_time` bigint  DEFAULT NULL,
+`start_time` bigint DEFAULT NULL,
+`end_time` bigint DEFAULT NULL,
 `queue` text(255) DEFAULT NULL,
 `resource_req` text(255) DEFAULT NULL,
 `from_host` text(255) DEFAULT NULL,
@@ -56,19 +56,27 @@ CREATE TABLE `finish_job` (
 `options2` INTEGER DEFAULT NULL,
 `requeue_e_values` text(255) DEFAULT NULL,
 `notify_cmd` text(255) DEFAULT NULL,
-`last_resize_time` text(30) DEFAULT NULL,
+`last_resize_time` bigint  DEFAULT NULL,
 `job_description` text(255) DEFAULT NULL,
 `command` mediumtext default null,
- primary key (internal_id),
+ primary key (internal_id,submit_time),
  key(job_id),
  key(user_id),
  key(user_name(255)),
- key(submit_time(30)),
- key(start_time(30)),
- key(end_time(30)),
+ key(submit_time),
+ key(start_time),
+ key(end_time),
  key(queue(255)),
  key(cwd(255))
 
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
+) ENGINE=MyISAM DEFAULT CHARSET=latin1
+PARTITION BY RANGE (submit_time) (
+   partition p0 values less than (1328072400),
+   partition p1 values less than (1330578000),
+   partition p2 values less than (1333252800),
+   partition p3 values less than (1335844800),
+   partition p4 values less than (1338523200),
+   partition p5 values less than maxvalue
+ 
+);
 unlock tables;
