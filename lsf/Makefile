@@ -20,5 +20,8 @@ eventtest: eventtest.c
 mysqltest: mysqltest.c
 	gcc $(CFLAGS) $(MYSQL_CFLAGS) -o mysqltest mysqltest.c $(MYSQL_CLIBS)
 
+uthashtest: uthashtest.c
+	gcc $(CFLAGS) -o uthashtest uthashtest.c
+
 clean:
 	rm -f *.so *.o binfo eventtest
