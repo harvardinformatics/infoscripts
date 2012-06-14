@@ -13,16 +13,14 @@ int main(int argc, char *argv[]) {
  * 
  * John Brunelle has all previous (mostly) event files in /n/RC_Team/lsf_logs.sorted/acct
  */
-  char *eventFile = argv[1];
-
-    FILE *fp;
-
-    struct eventRec *record;
-
-    int  lineNum = 0;
+    FILE  *fp;
+    char  *eventFile = argv[1];
+    int    lineNum   = 0;
+    struct eventRec     *record;
+    struct jobFinishLog *finishJob;
 
     if (argc != 2) {
-        printf("Usage: %s jobname\n", argv[0]);
+        printf("Usage: %s lsb.acct\n", argv[0]);
         exit(-1);
     }
 
@@ -36,6 +34,7 @@ int main(int argc, char *argv[]) {
         perror(eventFile);
         exit(-1);
     }
+
 
     for (;;) {
 
@@ -112,7 +111,7 @@ int main(int argc, char *argv[]) {
 	    char  *jobName       = finishJob->jobName;
 	    char  *command       = finishJob->command;
 
-	    char *askedHostsString = join_string(askedHosts,numaskedHosts,",");
+	    char *askedHostsString = join_string(askedHosts,numAskedHosts,",");
 	    char *execHostsString  = join_string(execHosts,numExHosts,",");
 
 
