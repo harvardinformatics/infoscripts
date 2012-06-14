@@ -60,7 +60,7 @@ my %headers;
 #L       Reverse_Reverse_sp|P25680|TXW10_NAJNI   43      GCA.VTCPVAKPRE.IVE
 #L       sp|P25680|TXW10_NAJNI   43      GCA.VTCPVAKPRE.IVE
 
-printf $outfh "%10s\t%30s\t%30s\t%7s\t%7s\t%15s\t%15s\t","Unique","Sequence","Filename","XCorr","DeltCN","Confidence","Calculated M+H+";
+printf $outfh "%10s\t%50s\t%30s\t%7s\t%7s\t%15s\t%15s\t","Unique","Sequence","Filename","XCorr","DeltCN","Confidence","Calculated M+H+";
 printf $outfh "%15s\t%10s\t%10s\t%15s\t","Observed M+H+","Mass Diff","Prob","Total Intensity";
 printf $outfh "%5s\t%10s\t%10s\t%s\n","Sp Rank","Ion Proportion","Redundancy","Proteins";
 
@@ -109,7 +109,8 @@ while (<$infh>) {
 					my $filename = $headers{'SpectrumFile'};
 					$filename =~ s/^\/.*\///;
 	 				my $protstr = join(", ",@proteins);
-					printf $outfh "%10s\t%30s\t%30s\t%7.4f\t%7.4f\t%15s\t%15.5f\t","NA",$sequence,$filename,$xcorr,$deltcn,"NA",$calculated_mass;
+                                        $protstr =~ s/^, //;
+					printf $outfh "%10s\t%50s\t%30s\t%7.4f\t%7.4f\t%15s\t%15.5f\t","NA",$sequence,$filename,$xcorr,$deltcn,"NA",$calculated_mass;
 					printf $outfh "%15.5f\t%10.5f\t%10s\t%15.2f\t",$observed_mass,($calculated_mass-$observed_mass),"NA",$totintensity;
 					printf $outfh "%5d\t%10s\t%10s\t%s\n",$sp_rank,"NA","NA",$protstr;
 
