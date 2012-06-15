@@ -5,10 +5,10 @@ LSFINC=/lsf/7.0/include/
 LSFLIB=/lsf/7.0/linux2.6-glibc2.3-x86_64/lib/
 LSF_CFLAGS=-I$(LSFINC) -L$(LSFLIB) -lbat -llsf -lnsl -lm
 
-CFLAGS= -g -O4 -Wall
+CFLAGS= -g -Wall
 
-MYSQL_CFLAGS=`mysql_config5 --cflags`
-MYSQL_CLIBS=`mysql_config5 --libs`
+MYSQL_CFLAGS=`mysql_config --cflags`
+MYSQL_CLIBS=`mysql_config --libs`
 
 
 all: binfo eventtest
@@ -29,7 +29,7 @@ mysql_loadusers: mysql_loadusers.c
 	gcc $(CFLAGS) $(MYSQL_CFLAGS) -o mysql_loadusers mysql_loadusers.c $(MYSQL_CLIBS)
 
 lsf_parse: lsf_parse.c
-	gcc $(CFLAGS) $(MYSQL_CFLAGS) -o lsf_parse lsf_parse.c $(MYSQL_CLIBS)
+	gcc $(CFLAGS) $(LSF_CFLAGS) $(MYSQL_CFLAGS) -o lsf_parse lsf_parse.c $(MYSQL_CLIBS)
 
 uthashtest: uthashtest.c
 	gcc $(CFLAGS) -o uthashtest uthashtest.c
