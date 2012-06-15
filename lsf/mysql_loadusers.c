@@ -100,16 +100,23 @@ int main(int argc, char *argv[]){
 
       groups[gcount] = group;
 
-      free(words[i]);
-      
       gcount++;
       i++;
       
     }
+
+    i = 0;
+
+    while (words[i] != NULL) {
+      free(words[i]);
+      i++;
+    }
+
     groups[gcount] = -1;
 
     update_user_and_labgroup(conn,userobj->id,groups);
 
+    free(line);
     free(groups);
     free(words);
     free(userobj->name);
@@ -344,11 +351,11 @@ char * next_field(char *str, int *pos) {
   while (i < strlen(str) && str[i]  != ' ') {
     if (outstr == NULL) {
       n = 0;
-      outstr = (char *)malloc(sizeof(char)*(2));
+      outstr = (char *)malloc(10*sizeof(char));
 
       if (outstr == NULL) {
-         printf("Can't allocate memory for outstr\n");
-         exit(0);
+	printf("Can't allocate memory for outstr\n");
+	exit(0);
       }
       outstr[n] = str[i];
       n++;
@@ -393,11 +400,14 @@ char **read_words(int verbose,char *str) {
 
     words = (char **)realloc(words,sizeof(char *)*count);
 
-    words[count-1] = word;
-
+    words[count-1] = malloc((strlen(word)+1)*sizeof(char));
+    strcpy(words[count-1],word);
+    free(word);
   }
-  words = (char **)realloc(words,sizeof(char *)*(count+1));
-  words[count] = NULL;
+  count++;
+  words = (char **)realloc(words,sizeof(char *)*(count));
+  words[count-1] = NULL;
+  free(word);
   return words;
 }
 

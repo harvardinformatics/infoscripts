@@ -28,6 +28,9 @@ mysql_usertest: mysql_usertest.c
 mysql_loadusers: mysql_loadusers.c
 	gcc $(CFLAGS) $(MYSQL_CFLAGS) -o mysql_loadusers mysql_loadusers.c $(MYSQL_CLIBS)
 
+lsf_parse: lsf_parse.c
+	gcc $(CFLAGS) $(MYSQL_CFLAGS) -o lsf_parse lsf_parse.c $(MYSQL_CLIBS)
+
 uthashtest: uthashtest.c
 	gcc $(CFLAGS) -o uthashtest uthashtest.c
 
