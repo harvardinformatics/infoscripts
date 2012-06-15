@@ -7,7 +7,7 @@
 
 typedef struct _User {
   int id;            /* This is the internal id in the mysql db */
-  char name[10];     /* This is the key string */        
+  char *name;        /* This is the key string */        
   /*  UT_hash_handle hh;  makes this structure hashable */
 } User;
 
@@ -16,8 +16,9 @@ char  *read_line(FILE *file);
 char  *next_field(char *str, int *pos);
 User  *get_user_by_username(MYSQL *conn,char *username);
 User  *add_user_by_username(MYSQL *conn,char *username);
-int    get_group_by_groupname(MYSQL *conn,char *groupname);
-void   add_group_by_groupname(MYSQL *conn,char *groupname);
+int    get_labgroup_by_labgroup_name(MYSQL *conn,char *labgroup_name);
+int    add_labgroup_by_labgroup_name(MYSQL *conn,char *labgroup_name);
+void   update_user_and_labgroup(MYSQL *conn, int user, int *group);
 
 int main(int argc, char *argv[]){
 
@@ -62,35 +63,57 @@ int main(int argc, char *argv[]){
   char  *username;
   User  *userobj;
 
-  int group;
+  int  group;
+  int *groups;
+  int  i;
 
   line = NULL;
 
   while ((line = read_line(fp)) && line != NULL) {
-    printf("Line %s\n",line);
-    words = read_words(0,line);
-    
+    words    = read_words(0,line);
     username = words[0];
-    
-    userobj = get_user_by_username(conn,username);
+    userobj  = get_user_by_username(conn,username);
     
     if (userobj == NULL) {
       userobj = add_user_by_username(conn,username);
-    } else {
-      printf("User %d\n",userobj->id);
-    }
-
-    int i = 2;
-    while (words[i] != NULL) {
-      printf("Group %s\n",words[i]);
+      printf("Adding User %s %d\n",username,userobj->id);
       
-      group = get_group_by_groupname(conn,words[i]);
-      printf("Group %d\n",group);
-      i++;
-
     }
-    // Should free the individual words here - but this breaks!
+    
+    i = 2;
+
+    groups     = (int *)malloc(100*sizeof(int));
+    
+    int gcount = 0;
+    
+    while (words[i] != NULL) {
+      group = get_labgroup_by_labgroup_name(conn,words[i]);
+
+      if (group == -1) {
+	group = add_labgroup_by_labgroup_name(conn,words[i]);
+	printf("Adding labgroup %s %d\n",words[i],group);
+      }
+
+      if (gcount > 100) {
+	groups = (int *)realloc(groups,sizeof(groups)*(gcount+100));
+      }
+
+      groups[gcount] = group;
+
+      free(words[i]);
+      
+      gcount++;
+      i++;
+      
+    }
+    groups[gcount] = -1;
+
+    update_user_and_labgroup(conn,userobj->id,groups);
+
+    free(groups);
     free(words);
+    free(userobj->name);
+    free(userobj);
   }
   
   mysql_close(conn); 
@@ -98,11 +121,53 @@ int main(int argc, char *argv[]){
   return 1;
 }
 
+void update_user_and_labgroup(MYSQL *conn, int user, int *group) {
+  char str[100];
+  sprintf(str,"%d",user);
+  char *qstr;
+  
+  qstr = (char *)malloc(100*sizeof(char));
+
+  strcpy(qstr,"delete from user_group where user_internal_id = ");
+  strcat(qstr,str);
+
+  //printf("Query is %s\n",qstr);
+
+  if (mysql_query(conn,qstr)){
+    fprintf(stderr,"%s\n",mysql_error(conn));
+    exit(1);
+  } 
+
+  free(qstr);
+
+  qstr = (char *)malloc(300*sizeof(char));
+
+  
+  while (*group != -1) {
+    char gstr[100];
+    char ustr[100];
+    sprintf(gstr,"%d",*group);
+    sprintf(ustr,"%d",user);
+    strcpy(qstr,"insert into user_group values(");
+    strcat(qstr,ustr);
+    strcat(qstr,",");
+    strcat(qstr,gstr);
+    group++;
+  }
+  strcat(qstr,")");
+
+  //printf("Query is %s\n",qstr);
+
+  if (mysql_query(conn,qstr)){
+    fprintf(stderr,"%s\n",mysql_error(conn));
+    exit(1);
+  } 
+  free(qstr);
+}
 
 User *get_user_by_username(MYSQL *conn,char *username) {
-  MYSQL_RES *res;
   MYSQL_ROW row;
-  
+  MYSQL_RES *res;
   char *qstr;
   User *user;
 
@@ -115,7 +180,7 @@ User *get_user_by_username(MYSQL *conn,char *username) {
   strcat(qstr,username);
   strcat(qstr,"'");
   
-  printf("Query is %s\n",qstr);
+  //printf("Query is %s\n",qstr);
 
   if (mysql_query(conn,qstr)){
     fprintf(stderr,"%s\n",mysql_error(conn));
@@ -128,8 +193,6 @@ User *get_user_by_username(MYSQL *conn,char *username) {
   if (res) {
     id    = -1;
     num_fields = mysql_num_fields(res);
-
-    printf("Num %d\n",num_fields);
 
     while((row = mysql_fetch_row(res))!= NULL) {
       id = atoi(row[0]);
@@ -142,20 +205,19 @@ User *get_user_by_username(MYSQL *conn,char *username) {
     mysql_free_result(res);
     
     user = (User *)malloc(sizeof(User));
-      
+    
+    user->name = (char *)malloc((strlen(username)+1)*sizeof(char));
     user->id = id;
     strcpy(user->name,username);
-    printf("User %d\n",id);
+
     return user;
   }
   return NULL;
 }
 
 User *add_user_by_username(MYSQL *conn, char *username) {
-  printf("Adding user %s\n",username);
   MYSQL_RES *res;
-
-  char *qstr;
+  char      *qstr;
 
   qstr = (char *)malloc(200*sizeof(char));
   
@@ -163,7 +225,7 @@ User *add_user_by_username(MYSQL *conn, char *username) {
   strcat(qstr,username);
   strcat(qstr,"')");
   
-  printf("Query is %s\n",qstr);
+  //printf("Query is %s\n",qstr);
   
   if (mysql_query(conn,qstr)){
     fprintf(stderr,"%s\n",mysql_error(conn));
@@ -174,9 +236,9 @@ User *add_user_by_username(MYSQL *conn, char *username) {
   
   mysql_free_result(res);
   free(qstr);
-  return NULL;
+  return get_user_by_username(conn,username);
 }
-int get_group_by_groupname(MYSQL *conn,char *groupname) {
+int get_labgroup_by_labgroup_name(MYSQL *conn,char *labgroup_name) {
   MYSQL_RES *res;
   MYSQL_ROW row;
   
@@ -187,11 +249,11 @@ int get_group_by_groupname(MYSQL *conn,char *groupname) {
 
   qstr = (char *)malloc(200*sizeof(char));
 
-  strcpy(qstr,"select group_internal_id from group where group_name = '");
-  strcat(qstr,groupname);
+  strcpy(qstr,"select labgroup_internal_id from labgroup where labgroup_name = '");
+  strcat(qstr,labgroup_name);
   strcat(qstr,"'");
   
-  printf("Query is %s\n",qstr);
+  //printf("Query is %s\n",qstr);
 
   if (mysql_query(conn,qstr)){
     fprintf(stderr,"%s\n",mysql_error(conn));
@@ -205,8 +267,6 @@ int get_group_by_groupname(MYSQL *conn,char *groupname) {
     id    = -1;
     num_fields = mysql_num_fields(res);
 
-    printf("Num %d\n",num_fields);
-
     while((row = mysql_fetch_row(res))!= NULL) {
       id = atoi(row[0]);
     }
@@ -218,6 +278,31 @@ int get_group_by_groupname(MYSQL *conn,char *groupname) {
   return -1;
 }
 
+int add_labgroup_by_labgroup_name(MYSQL *conn, char *labgroup_name) {
+  MYSQL_RES *res;
+
+  char *qstr;
+
+  qstr = (char *)malloc(200*sizeof(char));
+  
+  strcpy(qstr,"insert into labgroup values(NULL,'");
+  strcat(qstr,labgroup_name);
+  strcat(qstr,"')");
+  
+  //printf("Query is %s\n",qstr);
+  
+  if (mysql_query(conn,qstr)){
+    fprintf(stderr,"%s\n",mysql_error(conn));
+    exit(1);
+  } 
+  
+  res = mysql_use_result(conn);
+  
+  mysql_free_result(res);
+  free(qstr);
+
+  return get_labgroup_by_labgroup_name(conn,labgroup_name);
+}
 
 char * read_line(FILE *file) {
 
