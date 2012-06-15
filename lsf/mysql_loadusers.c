@@ -17,7 +17,7 @@ char  *next_field(char *str, int *pos);
 User  *get_user_by_username(MYSQL *conn,char *username);
 User  *add_user_by_username(MYSQL *conn,char *username);
 int    get_group_by_groupname(MYSQL *conn,char *groupname);
-int    add_group_by_groupname(MYSQL *conn,char *groupname);
+void   add_group_by_groupname(MYSQL *conn,char *groupname);
 
 int main(int argc, char *argv[]){
 
@@ -25,8 +25,8 @@ int main(int argc, char *argv[]){
   MYSQL     *conn;
   char      *server   = "localhost";
   char      *user     = "root";
-  char      *password = "98lsf76";
-  char      *database = "lsf";
+  char      *password = "123456";
+  char      *database = "lsf2";
   char      *userfile = argv[1];
 
   if (argc != 2) {
@@ -218,31 +218,6 @@ int get_group_by_groupname(MYSQL *conn,char *groupname) {
   return -1;
 }
 
-int add_group_by_groupname(MYSQL *conn, char *groupname) {
-  printf("Adding group %s\n",groupname);
-  MYSQL_RES *res;
-
-  char *qstr;
-
-  qstr = (char *)malloc(200*sizeof(char));
-  
-  strcpy(qstr,"insert into group values(NULL,'");
-  strcat(qstr,groupname);
-  strcat(qstr,"')");
-  
-  printf("Query is %s\n",qstr);
-  
-  if (mysql_query(conn,qstr)){
-    fprintf(stderr,"%s\n",mysql_error(conn));
-    exit(1);
-  } 
-  
-  res = mysql_use_result(conn);
-  
-  mysql_free_result(res);
-  free(qstr);
-  return NULL;
-}
 
 char * read_line(FILE *file) {
 

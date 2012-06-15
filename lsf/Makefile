@@ -7,8 +7,8 @@ LSF_CFLAGS=-I$(LSFINC) -L$(LSFLIB) -lbat -llsf -lnsl -lm
 
 CFLAGS= -g -O4 -Wall
 
-MYSQL_CFLAGS=`mysql_config --cflags`
-MYSQL_CLIBS=`mysql_config --libs`
+MYSQL_CFLAGS=`mysql_config5 --cflags`
+MYSQL_CLIBS=`mysql_config5 --libs`
 
 
 all: binfo eventtest
