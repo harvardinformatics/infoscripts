@@ -16,9 +16,9 @@ char  *read_line(FILE *file);
 char  *next_field(char *str, int *pos);
 User  *get_user_by_username(MYSQL *conn,char *username);
 User  *add_user_by_username(MYSQL *conn,char *username);
-int    get_group_by_groupname(MYSQL *conn,char *groupname);
-int    add_group_by_groupname(MYSQL *conn,char *groupname);
-
+int    get_labgroup_by_labgroup_name(MYSQL *conn,char *labgroup_name);
+int    add_labgroup_by_labgroup_name(MYSQL *conn,char *labgroup_name);
+void update_user_and_labgroup(MYSQL *conn, int user, int *group);
 int main(int argc, char *argv[]){
 
   FILE      *fp;
@@ -81,15 +81,39 @@ int main(int argc, char *argv[]){
     }
 
     int i = 2;
+
+    int *groups;
+
+    groups     = (int *)malloc(100*sizeof(int));
+    int gcount = 0;
+    
     while (words[i] != NULL) {
       printf("Group %s\n",words[i]);
       
-      group = get_group_by_groupname(conn,words[i]);
+      group = get_labgroup_by_labgroup_name(conn,words[i]);
       printf("Group %d\n",group);
-      i++;
 
+      if (group == -1) {
+	group = add_labgroup_by_labgroup_name(conn,words[i]);
+	printf("Got group %d\n",group);
+      }
+
+      if (gcount > 100) {
+	groups = (int *)realloc(groups,sizeof(groups)*(gcount+100));
+      }
+      groups[gcount] = group;
+
+
+      gcount++;
+      i++;
+      
     }
+    groups[gcount] = -1;
+
+    update_user_and_labgroup(conn,userobj->id,groups);
+
     // Should free the individual words here - but this breaks!
+    free(groups);
     free(words);
   }
   
@@ -98,6 +122,52 @@ int main(int argc, char *argv[]){
   return 1;
 }
 
+void update_user_and_labgroup(MYSQL *conn, int user, int *group) {
+  MYSQL_RES *res;
+  MYSQL_ROW  row;
+
+  char str[100];
+  sprintf(str,"%d",user);
+  char *qstr;
+  
+  qstr = (char *)malloc(100*sizeof(char));
+
+  strcpy(qstr,"delete from user_group where user_internal_id = ");
+  strcat(qstr,str);
+
+  printf("Query is %s\n",qstr);
+
+  if (mysql_query(conn,qstr)){
+    fprintf(stderr,"%s\n",mysql_error(conn));
+    exit(1);
+  } 
+
+  free(qstr);
+
+  qstr = (char *)malloc(300*sizeof(char));
+
+  
+  while (*group != -1) {
+    char gstr[100];
+    char ustr[100];
+    sprintf(gstr,"%d",*group);
+    sprintf(ustr,"%d",user);
+    strcpy(qstr,"insert into user_group values(");
+    strcat(qstr,ustr);
+    strcat(qstr,",");
+    strcat(qstr,gstr);
+    group++;
+  }
+  strcat(qstr,")");
+
+  printf("Query is %s\n",qstr);
+
+  if (mysql_query(conn,qstr)){
+    fprintf(stderr,"%s\n",mysql_error(conn));
+    exit(1);
+  } 
+  free(qstr);
+}
 
 User *get_user_by_username(MYSQL *conn,char *username) {
   MYSQL_RES *res;
@@ -176,7 +246,7 @@ User *add_user_by_username(MYSQL *conn, char *username) {
   free(qstr);
   return NULL;
 }
-int get_group_by_groupname(MYSQL *conn,char *groupname) {
+int get_labgroup_by_labgroup_name(MYSQL *conn,char *labgroup_name) {
   MYSQL_RES *res;
   MYSQL_ROW row;
   
@@ -187,8 +257,8 @@ int get_group_by_groupname(MYSQL *conn,char *groupname) {
 
   qstr = (char *)malloc(200*sizeof(char));
 
-  strcpy(qstr,"select group_internal_id from group where group_name = '");
-  strcat(qstr,groupname);
+  strcpy(qstr,"select labgroup_internal_id from labgroup where labgroup_name = '");
+  strcat(qstr,labgroup_name);
   strcat(qstr,"'");
   
   printf("Query is %s\n",qstr);
@@ -218,16 +288,16 @@ int get_group_by_groupname(MYSQL *conn,char *groupname) {
   return -1;
 }
 
-int add_group_by_groupname(MYSQL *conn, char *groupname) {
-  printf("Adding group %s\n",groupname);
+int add_labgroup_by_labgroup_name(MYSQL *conn, char *labgroup_name) {
+  printf("Adding group %s\n",labgroup_name);
   MYSQL_RES *res;
 
   char *qstr;
 
   qstr = (char *)malloc(200*sizeof(char));
   
-  strcpy(qstr,"insert into group values(NULL,'");
-  strcat(qstr,groupname);
+  strcpy(qstr,"insert into labgroup values(NULL,'");
+  strcat(qstr,labgroup_name);
   strcat(qstr,"')");
   
   printf("Query is %s\n",qstr);
@@ -241,7 +311,8 @@ int add_group_by_groupname(MYSQL *conn, char *groupname) {
   
   mysql_free_result(res);
   free(qstr);
-  return NULL;
+
+  return get_labgroup_by_labgroup_name(conn,labgroup_name);
 }
 
 char * read_line(FILE *file) {
