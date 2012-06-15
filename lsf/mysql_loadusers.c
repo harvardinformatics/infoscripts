@@ -26,8 +26,8 @@ int main(int argc, char *argv[]){
   MYSQL     *conn;
   char      *server   = "localhost";
   char      *user     = "root";
-  char      *password = "123456";
-  char      *database = "lsf2";
+  char      *password = "98lsf76";
+  char      *database = "lsf";
   char      *userfile = argv[1];
 
   if (argc != 2) {
