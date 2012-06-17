@@ -32,6 +32,34 @@ MYSQL *Mysql_Connect() {
   return conn;
 }
 
+char *Mysql_Escape_String(MYSQL *conn,char *str) {
+  char *esc_str = (char *)malloc((strlen(str)*2+1)*sizeof(char));
+
+  mysql_real_escape_string(conn,esc_str,str,strlen(str));
+
+  return esc_str;
+}
+
+char *time_to_unixtime_value(time_t time) {
+  char *str;
+
+  str  = (char *)malloc(40*sizeof(char));
+
+  strcpy(str,"from_unixtime(");
+
+  char *tmp_str = (char *)malloc(26*sizeof(char));;
+
+  sprintf(tmp_str,"%ld",time);
+
+  tmp_str[24] = '\0';
+
+  strcat(str, tmp_str);
+
+  strcat(str,")");
+
+  return str;
+}
+
 void add_query_int_value(char *qstr,int value) {
 
   char valstr[100];

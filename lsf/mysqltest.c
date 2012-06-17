@@ -2,8 +2,9 @@
 
 #include<mysql.h>
 #include<stdio.h>
+#include <stdlib.h>
 
-main(){
+int main(){
    MYSQL     *conn;
    MYSQL_RES *res;
    MYSQL_ROW row;
@@ -47,4 +48,7 @@ main(){
 
    /* close connection */
    mysql_free_result(res);
-   mysql_close(conn); }
+   mysql_close(conn); 
+
+   return 0;
+}

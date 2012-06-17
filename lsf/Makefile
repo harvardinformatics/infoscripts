@@ -5,13 +5,28 @@ LSFINC=/lsf/7.0/include/
 LSFLIB=/lsf/7.0/linux2.6-glibc2.3-x86_64/lib/
 LSF_CFLAGS=-I$(LSFINC) -L$(LSFLIB) -lbat -llsf -lnsl -lm
 
-CFLAGS= -g -Wall
+CFLAGS= -O3 -g -Wall
 
 MYSQL_CFLAGS=`mysql_config --cflags`
 MYSQL_CLIBS=`mysql_config --libs`
 
 
-all: binfo eventtest
+all: update_users test_parse uthashtest mysqltest 
+
+import_lsf_log: import_lsf_log.c mysql.o utils.o labgroup.o
+	gcc $(CFLAGS) $(LSF_CFLAGS) $(MYSQL_CFLAGS) -o import_lsf_log import_lsf_log.c mysql.o utils.o labgroup.o $(MYSQL_CLIBS)
+
+update_users: update_users.c labgroup.o utils.o mysql.o
+	gcc $(CFLAGS) $(MYSQL_CFLAGS) -o update_users update_users.c labgroup.o utils.o mysql.o $(MYSQL_CLIBS) 
+
+labgroup.o: labgroup.c labgroup.h
+	gcc -c $(CFLAGS) $(MYSQL_CFLAGS) labgroup.c $(MYSQL_CLIBS)
+
+utils.o: utils.c utils.h
+	gcc -c $(CFLAGS) $(MYSQL_CFLAGS) utils.c $(MYSQL_CLIBS)
+
+mysql.o: mysql.c mysql.h
+	gcc -c $(CFLAGS) $(MYSQL_CFLAGS) mysql.c $(MYSQL_CLIBS)
 
 binfo: binfo.c
 	gcc $(CFLAGS) $(LSF_CFLAGS) -o binfo binfo.c
@@ -25,29 +40,6 @@ mysqltest: mysqltest.c
 mysql_usertest: mysql_usertest.c
 	gcc $(CFLAGS) $(MYSQL_CFLAGS) -o mysql_usertest mysql_usertest.c $(MYSQL_CLIBS)
 
-mysql_loadusers: mysql_loadusers.c
-	gcc $(CFLAGS) $(MYSQL_CFLAGS) -o mysql_loadusers mysql_loadusers.c $(MYSQL_CLIBS)
-
-update_users: update_users.c labgroup.o utils.o mysql.o
-	gcc $(CFLAGS) $(MYSQL_CFLAGS) -o update_users update_users.c labgroup.o utils.o $(MYSQL_CLIBS) 
-
-labgroup.o: labgroup.c labgroup.h
-	gcc -c $(CFLAGS) $(MYSQL_CFLAGS) labgroup.c $(MYSQL_CLIBS)
-
-utils.o: utils.c utils.h
-	gcc -c $(CFLAGS) $(MYSQL_CFLAGS) utils.c $(MYSQL_CLIBS)
-
-mysql.o: mysql.c mysql.h
-	gcc -c $(CFLAGS) $(MYSQL_CFLAGS) mysql.c $(MYSQL_CLIBS)
-
-lsf_parse: lsf_parse.c
-	gcc $(CFLAGS) $(LSF_CFLAGS) $(MYSQL_CFLAGS) -o lsf_parse lsf_parse.c $(MYSQL_CLIBS)
-
-test_parse: test_parse.c mysql.o utils.o labgroup.o
-	gcc $(CFLAGS) $(LSF_CFLAGS) $(MYSQL_CFLAGS) -o test_parse test_parse.c mysql.o utils.o labgroup.o $(MYSQL_CLIBS)
-
-test_parse2: test_parse2.c
-	gcc $(CFLAGS) $(LSF_CFLAGS) $(MYSQL_CFLAGS) -o test_parse2 test_parse2.c $(MYSQL_CLIBS)
 
 uthashtest: uthashtest.c
 	gcc $(CFLAGS) -o uthashtest uthashtest.c
