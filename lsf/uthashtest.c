@@ -12,11 +12,11 @@ typedef struct _User {
 
 User *users = NULL;  /* Must init to null */
 
-void  add_user(User *s);
+void  add_user(User *s,char *name);
 User *find_user(char *name);
 void  delete_user(User *user);
       
-void add_user(User *s) {
+void add_user(User *s,char *name) {
   HASH_ADD_STR( users, name, s );    
 }
 
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   tmp1->id = 1;
   strcpy(tmp1->name,"Michele");
   
-  add_user(tmp1);
+  add_user(tmp1,"name");
 
   tmp2 = find_user("Michele");
 
