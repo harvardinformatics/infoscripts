@@ -59,7 +59,6 @@ int main(int argc, char *argv[]){
       exit(-1);
     }
 
-
     if (record->type == EVENT_JOB_FINISH) {
 	  
       finishJob = &(record->eventLog.jobFinishLog);
@@ -99,6 +98,7 @@ int main(int argc, char *argv[]){
       add_query_string_noquote_value(qstr,subtime);
       add_query_string_noquote_value(qstr,starttime);
       add_query_string_noquote_value(qstr,endtime);
+
       add_query_string_value        (qstr,finishJob->queue);
       add_query_string_value        (qstr,esc_resreq);
       add_query_string_value        (qstr,finishJob->fromHost);
