@@ -5,13 +5,13 @@ LSFINC=/lsf/7.0/include/
 LSFLIB=/lsf/7.0/linux2.6-glibc2.3-x86_64/lib/
 LSF_CFLAGS=-I$(LSFINC) -L$(LSFLIB) -lbat -llsf -lnsl -lm
 
-CFLAGS= -O3 -g -Wall
+CFLAGS= -O4 -Wall
 
 MYSQL_CFLAGS=`mysql_config --cflags`
 MYSQL_CLIBS=`mysql_config --libs`
 
 
-all: update_users test_parse uthashtest mysqltest 
+all: import_lsf_log update_users test_parse uthashtest mysqltest mysqltest mysql_usertest binfo
 
 import_lsf_log: import_lsf_log.c mysql.o utils.o labgroup.o
 	gcc $(CFLAGS) $(LSF_CFLAGS) $(MYSQL_CFLAGS) -o import_lsf_log import_lsf_log.c mysql.o utils.o labgroup.o $(MYSQL_CLIBS)
@@ -39,7 +39,6 @@ mysqltest: mysqltest.c
 
 mysql_usertest: mysql_usertest.c
 	gcc $(CFLAGS) $(MYSQL_CFLAGS) -o mysql_usertest mysql_usertest.c $(MYSQL_CLIBS)
-
 
 uthashtest: uthashtest.c
 	gcc $(CFLAGS) -o uthashtest uthashtest.c

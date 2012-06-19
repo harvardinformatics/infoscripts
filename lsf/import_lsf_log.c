@@ -1,13 +1,13 @@
 /* Parses an lsb.acct file and stores to a db */
 
-#include<mysql.h>
-#include<stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <mysql.h>
 #include <lsf/lsf.h>
 #include <lsf/lsbatch.h>
 #include "uthash.h"
-#include <time.h>
 #include "utils.h"
 #include "labgroup.h"
 #include "mysql.h"
@@ -17,7 +17,7 @@
 
 int  event_time_exists       (MYSQL *conn, char *starttime,char *endtime);
 int  finish_job_exists       (MYSQL *conn, struct jobFinishLog *finishJob);
-void check_finish_jobs_exist (MYSQL *conn,FILE *fp);
+void check_whether_finish_jobs_exist(MYSQL *conn,FILE *fp);
 
 int main(int argc, char *argv[]){
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]){
   
   conn =  Mysql_Connect();
 
-  check_finish_jobs_exist(conn,lsf_fp);
+  check_whether_finish_jobs_exist(conn,lsf_fp);
 
   int lineNum;
 
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]){
 	add_user(user,"name");
       }
 
-      strcpy(qstr,"insert delayed into finish_job values(NULL");
+      strcpy(qstr,"insert into finish_job values(NULL");
       
       char *subtime          = time_to_unixtime_value(finishJob->submitTime);
       char *starttime        = time_to_unixtime_value(finishJob->startTime);
@@ -87,7 +87,8 @@ int main(int argc, char *argv[]){
       char *esc_resreq       = Mysql_Escape_String(conn,finishJob->resReq);
       char *esc_depcond      = Mysql_Escape_String(conn,finishJob->dependCond);
 
-      /*struct lsfRusage *lsfRusage = finishJob->lsfRusage;*/      
+
+      struct lsfRusage lsfr = finishJob->lsfRusage;
 
       add_query_int_value           (qstr,finishJob->jobId);
       add_query_int_value           (qstr,finishJob->userId);
@@ -100,6 +101,25 @@ int main(int argc, char *argv[]){
       add_query_string_noquote_value(qstr,endtime);
 
       add_query_string_value        (qstr,finishJob->queue);
+      add_query_float_value(qstr,lsfr.ru_utime);  /* User time used */
+      add_query_float_value(qstr,lsfr.ru_stime);  /* System time used */
+      add_query_float_value(qstr,lsfr.ru_maxrss); /* Max rss */
+      add_query_float_value(qstr,lsfr.ru_ixrss);  /* Integral shared text size */
+      add_query_float_value(qstr,lsfr.ru_idrss);  /* Integral unshared data */
+      add_query_float_value(qstr,lsfr.ru_isrss);  /* Integral unshared stack */
+      add_query_float_value(qstr,lsfr.ru_minflt); /* Page reclaims */
+      add_query_float_value(qstr,lsfr.ru_majflt); /* Page faults */
+      add_query_float_value(qstr,lsfr.ru_nswap);  /* Swaps */
+      add_query_float_value(qstr,lsfr.ru_inblock); /* Block inpu toperations */
+      add_query_float_value(qstr,lsfr.ru_oublock); /* Block output operations */
+      add_query_float_value(qstr,lsfr.ru_msgsnd); /* Messages sent */
+      add_query_float_value(qstr,lsfr.ru_msgrcv); /* Messages received */
+      add_query_float_value(qstr,lsfr.ru_nsignals); /* Signals received */
+      add_query_float_value(qstr,lsfr.ru_nvcsw); /* voluntary context switches */
+      add_query_float_value(qstr,lsfr.ru_nivcsw); /* involuntary context switches */
+
+
+
       add_query_string_value        (qstr,esc_resreq);
       add_query_string_value        (qstr,finishJob->fromHost);
       add_query_string_value        (qstr,finishJob->cwd);
@@ -151,12 +171,22 @@ int main(int argc, char *argv[]){
       
       strcat(qstr,")");
       
-      //printf("Query string %s\n",qstr);
+     //printf("Query string %s\n",qstr);
 	
       if (mysql_query(conn,qstr)){
 	fprintf(stderr,"%s\n",mysql_error(conn));
 	exit(1);
       } 
+
+      free(subtime);
+      free(starttime);
+      free(endtime);
+      free(lastResizeTime);
+      free(askedHostsString);
+      free(execHostsString);
+      free(esc_command);
+      free(esc_resreq);
+      free(esc_depcond);
     }
   }
   mysql_close(conn); 
@@ -164,7 +194,7 @@ int main(int argc, char *argv[]){
   return 1;
 }
 
-void check_finish_jobs_exist(MYSQL *conn,FILE *fp) {
+void check_whether_finish_jobs_exist(MYSQL *conn,FILE *fp) {
   struct eventRec     *record;
   struct jobFinishLog *finishJob;
 
@@ -240,6 +270,7 @@ int finish_job_exists(MYSQL *conn, struct jobFinishLog *finishJob) {
   } 
   
   free(qstr);
+  free(timestr);
 
   res = mysql_use_result(conn);
 
