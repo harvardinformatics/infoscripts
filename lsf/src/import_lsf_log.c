@@ -47,7 +47,7 @@ int main(int argc, char *argv[]){
 
   int lineNum;
 
-  char *qstr              =  (char *)malloc(10000*sizeof(char));
+  char *qstr              =  (char *)malloc(20000*sizeof(char));
   
   for (;;) {
 
@@ -84,11 +84,6 @@ int main(int argc, char *argv[]){
       char *askedHostsString = join_string(finishJob->askedHosts,finishJob->numAskedHosts,",");
       char *execHostsString  = join_string(finishJob->execHosts,finishJob->numExHosts,",");
 
-      char *esc_command      = Mysql_Escape_String(conn,finishJob->command);
-      char *esc_resreq       = Mysql_Escape_String(conn,finishJob->resReq);
-      char *esc_depcond      = Mysql_Escape_String(conn,finishJob->dependCond);
-
-
       struct lsfRusage lsfr = finishJob->lsfRusage;
 
       add_query_int_value           (qstr,finishJob->jobId);
@@ -110,7 +105,7 @@ int main(int argc, char *argv[]){
       add_query_int_value           (qstr,subtime->sec);
 
 
-      add_query_string_value        (qstr,finishJob->queue);
+      add_query_string_value        (qstr,finishJob->queue,conn);
       add_query_float_value(qstr,lsfr.ru_utime);  /* User time used */
       add_query_float_value(qstr,lsfr.ru_stime);  /* System time used */
       add_query_float_value(qstr,lsfr.ru_maxrss); /* Max rss */
@@ -130,54 +125,54 @@ int main(int argc, char *argv[]){
 
 
 
-      add_query_string_value        (qstr,esc_resreq);
-      add_query_string_value        (qstr,finishJob->fromHost);
-      add_query_string_value        (qstr,finishJob->cwd);
-      add_query_string_value        (qstr,finishJob->inFile);
-      add_query_string_value        (qstr,finishJob->outFile);
-      add_query_string_value        (qstr,finishJob->errFile);
-      add_query_string_value        (qstr,finishJob->inFileSpool);
-      add_query_string_value        (qstr,finishJob->commandSpool);	
-      add_query_string_value        (qstr,finishJob->jobFile);		
+      add_query_string_value        (qstr,finishJob->resReq,conn);
+      add_query_string_value        (qstr,finishJob->fromHost,conn);
+      add_query_string_value        (qstr,finishJob->cwd,conn);
+      add_query_string_value        (qstr,finishJob->inFile,conn);
+      add_query_string_value        (qstr,finishJob->outFile,conn);
+      add_query_string_value        (qstr,finishJob->errFile,conn);
+      add_query_string_value        (qstr,finishJob->inFileSpool,conn);
+      add_query_string_value        (qstr,finishJob->commandSpool,conn);	
+      add_query_string_value        (qstr,finishJob->jobFile,conn);		
       add_query_int_value           (qstr,finishJob->numAskedHosts);		
       add_query_int_value           (qstr,finishJob->hostFactor);
-      add_query_string_value        (qstr,askedHostsString);
+      add_query_string_value        (qstr,askedHostsString,conn);
       add_query_int_value           (qstr,finishJob->numExHosts);		
-      add_query_string_value        (qstr,execHostsString);		
+      add_query_string_value        (qstr,execHostsString,conn);		
       add_query_float_value         (qstr,finishJob->cpuTime);
-      add_query_string_value        (qstr,finishJob->jobName);		
+      add_query_string_value        (qstr,finishJob->jobName,conn);		
       
-      add_query_string_value        (qstr,esc_depcond);		    
-      add_query_string_value        (qstr,finishJob->timeEvent);		
-      add_query_string_value        (qstr,finishJob->preExecCmd);		
-      add_query_string_value        (qstr,finishJob->mailUser);		
-      add_query_string_value        (qstr,finishJob->projectName);		
+      add_query_string_value        (qstr,finishJob->dependCond,conn);
+      add_query_string_value        (qstr,finishJob->timeEvent,conn);		
+      add_query_string_value        (qstr,finishJob->preExecCmd,conn);		
+      add_query_string_value        (qstr,finishJob->mailUser,conn);		
+      add_query_string_value        (qstr,finishJob->projectName,conn);		
       add_query_int_value           (qstr,finishJob->exitStatus);		
       add_query_int_value           (qstr,finishJob->maxNumProcessors);		
-      add_query_string_value        (qstr,finishJob->loginShell);		
+      add_query_string_value        (qstr,finishJob->loginShell,conn);		
       add_query_int_value           (qstr,finishJob->idx);		
       add_query_int_value           (qstr,finishJob->maxRMem);		
       add_query_int_value           (qstr,finishJob->maxRSwap);		
-      add_query_string_value        (qstr,finishJob->rsvId);		
-      add_query_string_value        (qstr,finishJob->sla);		
+      add_query_string_value        (qstr,finishJob->rsvId,conn);		
+      add_query_string_value        (qstr,finishJob->sla,conn);		
       add_query_int_value           (qstr,finishJob->exceptMask);		
       
-      add_query_string_value        (qstr,finishJob->additionalInfo);		
+      add_query_string_value        (qstr,finishJob->additionalInfo,conn);		
       add_query_int_value           (qstr,finishJob->exitInfo);		
       add_query_int_value           (qstr,finishJob->warningTimePeriod);		
-      add_query_string_value        (qstr,finishJob->warningAction);		
-      add_query_string_value        (qstr,finishJob->chargedSAAP);		
-      add_query_string_value        (qstr,finishJob->licenseProject);		
-      add_query_string_value        (qstr,finishJob->app);		
-      add_query_string_value        (qstr,finishJob->postExecCmd);		
+      add_query_string_value        (qstr,finishJob->warningAction,conn);		
+      add_query_string_value        (qstr,finishJob->chargedSAAP,conn);		
+      add_query_string_value        (qstr,finishJob->licenseProject,conn);		
+      add_query_string_value        (qstr,finishJob->app,conn);		
+      add_query_string_value        (qstr,finishJob->postExecCmd,conn);		
       add_query_int_value           (qstr,finishJob->runtimeEstimation);		
-      add_query_string_value        (qstr,finishJob->jgroup);		
+      add_query_string_value        (qstr,finishJob->jgroup,conn);		
       add_query_int_value           (qstr,finishJob->options2);		
-      add_query_string_value        (qstr,finishJob->requeueEValues);		
-      add_query_string_value        (qstr,finishJob->notifyCmd);		
+      add_query_string_value        (qstr,finishJob->requeueEValues,conn);		
+      add_query_string_value        (qstr,finishJob->notifyCmd,conn);		
       add_query_string_noquote_value(qstr,lastResizeTime->mysql_str);
-      add_query_string_value        (qstr,finishJob->jobDescription);
-      add_query_string_value        (qstr,esc_command);
+      add_query_string_value        (qstr,finishJob->jobDescription,conn);
+      add_query_string_value        (qstr,finishJob->command,conn);
       
       strcat(qstr,")");
       
@@ -194,9 +189,6 @@ int main(int argc, char *argv[]){
       free(lastResizeTime);
       free(askedHostsString);
       free(execHostsString);
-      free(esc_command);
-      free(esc_resreq);
-      free(esc_depcond);
     }
   }
   mysql_close(conn); 

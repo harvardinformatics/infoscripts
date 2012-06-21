@@ -48,4 +48,6 @@ int main(int argc, char **argv) {
 	}
 
 	lsb_closejobinfo();
+
+        return 0;
 }
