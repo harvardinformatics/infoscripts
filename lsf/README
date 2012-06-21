@@ -3,12 +3,6 @@ Prerequisites
 
 You need the lsf libraries and the mysql development tools.
 
-To Build
-========
-
-cd src
-
-make
 
 The Setup
 =========
@@ -23,6 +17,19 @@ Load the sql
   mysql -u lsfuser -pxxxxxx lsf < sql/user.sql
 
 Configure your mysql instance to have oodles of memory - the max for key_buffer_size.
+
+To Build
+========
+
+cd src
+
+Edit mysql.c to set the mysql dbname,user etc.
+
+make
+
+cd ../
+
+The binaries are in the bin directory
 
 The Programs
 ============
@@ -48,5 +55,21 @@ The program checks the first and last record in the file to see whether it has a
 
 If a user isn't in the database it will be created (without a group).
 
+The Web Pages
+=============
+
+cd www
+
+Edit lsf_query.php, username_query.php and labgroup_query.php to set the right mysql params (yes I know they should be central)
+
+link the contents of the www under your apache document root
+
+e.g.
+
+cd /var/www/html
+
+ln -s /home/mclamp/lsf/www lsf
+
+The main url is lsf_chart.php
 
 

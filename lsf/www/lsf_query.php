@@ -20,7 +20,7 @@ $labgroup = "";
 if (isset($_REQUEST['user'])) {
   $user   = $_REQUEST['user'];
 } else {
-  $user = 'jab';
+  $user = '';
 }
 
 if (isset($_REQUEST['groupby'])) {
@@ -34,25 +34,57 @@ if (isset($_REQUEST['labgroup'])) {
   $labgroup = "";
 }
 
-error_log("Group by $groupby\n",3,"/tmp/log");
-
+//error_log("Group by $groupby\n",3,"/tmp/log");
 foreach ($_REQUEST as $key => $val) {
 	error_log("Key $key : $val\n",3,"/tmp/log");
 }
-
 date_default_timezone_set ('America/New_York');
 $userstr = "";
 
-if (0 && $labgroup != ""  && $user == "") {
+if ($labgroup == "" && $user == "") {
+
+  if ($groupby == "month") {
+    $qstr = "select submit_month,submit_year,count(*) count from finish_job group by 2,1";
+
+    $rawdata = mysql_magic($qstr);
+    
+    foreach ($rawdata as $data) {
+      $month = $data['submit_month']+1;
+      $year  = 1900 + (int)($data['submit_year']);
+      
+      $date = new DateTime("$year-$month-01");
+      
+      print $date->format('Y-m-d H:i:s') . "\t" . (int)($data['count']) . "\n";
+    }
+ } else {
+    $qstr = "select submit_mday,submit_month,submit_year,count(*) count from finish_job group by 3,2,1";
+
+    $rawdata = mysql_magic($qstr);
+    
+    foreach ($rawdata as $data) {
+    
+      $day   = $data['submit_mday'];
+      $month = $data['submit_month']+1;
+      $year  = 1900 + (int)($data['submit_year']);
+      
+      $date = new DateTime("$year-$month-$day");
+      
+      print $date->format('Y-m-d H:i:s') . "\t" . (int)($data['count']) . "\n";
+    }
+}
+} else if ($labgroup != ""  && $user == "") {
+
+  $users = get_users_by_labgroup($labgroup);
+
+  $userstr = join(",",$users);
+
+  $userstr = "(".$userstr.")";
 
   if ($groupby == "month") {
     $qstr = "select submit_month,submit_year,
                         count(*) count
-			from finish_job,user ,user_group,labgroup
- 			    where user.user_internal_id = finish_job.user_internal_id
-                            and   user_group.user_internal_id = user.user_internal_id
-                            and   user_group.labgroup_internal_id = labgroup.labgroup_internal_id
-                            and   labgroup.labgroup_name = '$labgroup'
+			from finish_job
+ 			    where user_internal_id in $userstr 
                             group by 2,1";
     $rawdata = mysql_magic($qstr);
     
@@ -68,11 +100,8 @@ if (0 && $labgroup != ""  && $user == "") {
   } else {
     $qstr = "select submit_mday,submit_month,submit_year,
                         count(*) count
-			from finish_job,user ,user_group,labgroup
- 			    where user.user_internal_id = finish_job.user_internal_id
-                            and   user_group.user_internal_id = user.user_internal_id
-                            and   user_group.labgroup_internal_id = labgroup.labgroup_internal_id
-                            and   labgroup.labgroup_name = '$labgroup'
+			from finish_job
+ 			    where user_internal_id in $userstr 
                             group by 3,2,1";
     $rawdata = mysql_magic($qstr);
     
@@ -134,5 +163,20 @@ if (0 && $labgroup != ""  && $user == "") {
     }
   }
 }
+
+function get_users_by_labgroup($group) {
+
+  $qstr = "select user_internal_id from labgroup,user_group where labgroup.labgroup_name = '$group' and labgroup.labgroup_internal_id = user_group.labgroup_internal_id";
+  $rows = mysql_magic($qstr);
+
+  $groups = array();
+
+  foreach ($rows as $row) {
+    $groups[] = $row['user_internal_id'];
+  }
+
+  return $groups;
+}
+
 
 ?>
