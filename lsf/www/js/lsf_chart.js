@@ -18,7 +18,6 @@ $(function () {
             xAxis: {
                 type: 'datetime',
                 gridLineWidth: 1,
-		minRange: 0
             },
 
 
@@ -70,14 +69,12 @@ $(function () {
 	$(".lsf_chart").each(function() {
 
 		$("<input class=\"ui-widget\" type=\"button\" id=\"go\" value=\"go\">").insertAfter($(this));
-		$("<select class=\"ui-widget\" id=\"groupby\"><option>month</option><option selected>mday</option></select>").insertAfter($(this));
-		$("<select class=\"ui-widget\" id=\"type\"><option>cputime</option><option selected>jobs</option></select>").insertAfter($(this));
+		$("<select class=\"ui-widget\" id=\"groupby\"><option>hour</option><option selected>mday</option><option>month</option><option>wday</option></select>").insertAfter($(this));
 
 		$("<label class=\"ui-widget\" >User name</label><input class=\"ui-widget\" id=\"username\">").insertAfter($(this));
 		$("<label class=\"ui-widget\">Labgroup</label><input class=\"ui-widget\" id=\"labgroup\">").insertAfter($(this));
 		
 		getData();
-		
 		
 		$("#go").click(function() {
 			console.log("Click");
@@ -202,12 +199,20 @@ $(function () {
 
 	    if (!first) {
 		params = getParameters();
-		user = params['user'];
-		labgroup = params['labgroup'];
-		groupby  = params['groupby'];
+                if (params['user']) {
+		  user = params['user'];
+                  $("#username").val(user);
+                }
+                if (params['labgroup']) {
+		  labgroup = params['labgroup'];
+                  $("#labgroup").val(labgroup);
+                }
+                if (params['groupby']) {
+		  groupby  = params['groupby'];
+                  $("#groupby").val(groupby);
+                }
 		first = 1;
 	    }
-	    console.log("User",user,labgroup,groupby);
 	    var jobdata = [];
 
 	    var url = 'lsf_query.php?user='+user+"&groupby="+groupby+"&labgroup="+labgroup;
@@ -219,12 +224,13 @@ $(function () {
 		    var date;
 		    var count;
 		    
+                    var groupby = $("#groupby").val();
 		    
 		    // inconsistency
 		    if (typeof tsv !== 'string') {
 			tsv = xhr.responseText;
 		    }
-		    
+		    console.log(tsv); 
 		    // split the data return into lines and parse them
 		    tsv = tsv.split(/\n/g);
 		    
@@ -232,7 +238,11 @@ $(function () {
 		    jQuery.each(tsv, function(i, line) {
 			    
 			    line  = line.split(/\t/);
-			    date  = Date.parse(line[0] +' UTC');;
+                            if (groupby == "month" || groupby == "mday") {
+			     date  = Date.parse(line[0]);;
+                            } else {
+                             date = line[0];
+                            }
 			    count = parseInt(line[1]);
 			    
 			    
@@ -241,10 +251,16 @@ $(function () {
 					  count
 					  ]);
 			    i++;
-			});
-		    
+			
+                    });
+
 		    options.series[0].data = jobdata;
 		    options.title = {text: "LSF Jobs"}
+                    if (groupby == "month" || groupby == "mday") {
+                       options.xAxis.type = 'datetime';
+                    } else {
+                       options.xAxis.type = 'linear';
+                    }
 		    chart = new Highcharts.Chart(options);
 		    console.log(jobdata);
 		    return jobdata;
