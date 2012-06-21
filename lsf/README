@@ -24,6 +24,7 @@ To Build
 cd src
 
 Edit mysql.c to set the mysql dbname,user etc.
+Edit Makefile to set the LSF variables
 
 make
 
