@@ -1,0 +1,52 @@
+Prerequisites
+=============
+
+You need the lsf libraries and the mysql development tools.
+
+To Build
+========
+
+cd src
+
+make
+
+The Setup
+=========
+
+Create your database 
+
+  echo "create database lsf " |mysql -u lsfuser -pxxxxxx 
+
+Load the sql
+
+  mysql -u lsfuser -pxxxxxx lsf < sql/finish_job.sql
+  mysql -u lsfuser -pxxxxxx lsf < sql/user.sql
+
+Configure your mysql instance to have oodles of memory - the max for key_buffer_size.
+
+The Programs
+============
+
+1. bin/update_users <userfile>
+
+Loads users and groups from a file and saves them to the db
+
+Userfile has a username and group on one line separated by spaces.
+
+e.g.
+
+mclamp  rc_admin
+mclamp  solexa_users
+
+A user can be in more than one group.
+
+2. bin/import_lsf_log <lsb.acct file>
+
+Reads events from an lsf lsb.acct file (Ours are found in /lsf/work/odyssey-lsf/logdir) and saves to the db.
+
+The program checks the first and last record in the file to see whether it has already loaded it.
+
+If a user isn't in the database it will be created (without a group).
+
+
+
