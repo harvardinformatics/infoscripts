@@ -67,12 +67,13 @@ $(function () {
         // http://api.jquery.com/jQuery.get/
 
 	$(".lsf_chart").each(function() {
+                $("<div style=\"width:50%;margin-left:auto; margin-right:auto\" id=\"controls\">").insertAfter($(this));
+                var controls = $("#controls");
+		$("<label class=\"ui-widget\">Labgroup</label><input class=\"ui-widget\" id=\"labgroup\">").appendTo($(controls));
+		$("<label class=\"ui-widget\" >User name</label><input class=\"ui-widget\" id=\"username\">").appendTo($(controls));
+		$("<select class=\"ui-widget\" id=\"groupby\"><option>hour</option><option selected>mday</option><option>month</option><option>wday</option></select>").appendTo($(controls));
 
-		$("<input class=\"ui-widget\" type=\"button\" id=\"go\" value=\"go\">").insertAfter($(this));
-		$("<select class=\"ui-widget\" id=\"groupby\"><option>hour</option><option selected>mday</option><option>month</option><option>wday</option></select>").insertAfter($(this));
-
-		$("<label class=\"ui-widget\" >User name</label><input class=\"ui-widget\" id=\"username\">").insertAfter($(this));
-		$("<label class=\"ui-widget\">Labgroup</label><input class=\"ui-widget\" id=\"labgroup\">").insertAfter($(this));
+		$("<input class=\"ui-widget\" type=\"button\" id=\"go\" value=\"go\">").appendTo($(controls));
 		
 		getData();
 		
@@ -111,6 +112,7 @@ $(function () {
 			    if ($("#labgroup").val()) {
 				labgroup = $("#labgroup").val();
 			    }
+
 			  $.ajax({
 					  
 			      url:  "username_query.php",
@@ -216,9 +218,11 @@ $(function () {
 	    var jobdata = [];
 
 	    var url = 'lsf_query.php?user='+user+"&groupby="+groupby+"&labgroup="+labgroup;
-
 	    console.log("URL",url);
-
+            var preloaderdiv = '<div style="height: 400px; background: url(images/preloader.gif) no-repeat center center"> </div>';
+            $(".lsf_chart").each(function() {
+               $(this).html(preloaderdiv);
+            });
 	    jQuery.get(url, null, function(tsv, state, xhr) {
 		    var lines = [];
 		    var date;

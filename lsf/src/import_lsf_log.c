@@ -29,6 +29,8 @@ int main(int argc, char *argv[]){
   struct eventRec     *record;
   struct jobFinishLog *finishJob;
 
+  int qcount = 0;
+
   if (argc != 2) {
     printf("Usage: %s <lsb.acct file>\n", argv[0]);
     exit(-1);
@@ -47,7 +49,7 @@ int main(int argc, char *argv[]){
 
   int lineNum;
 
-  char *qstr              =  (char *)malloc(20000*sizeof(char));
+  char *qstr              =  (char *)malloc(100000*sizeof(char));
   
   for (;;) {
 
@@ -74,15 +76,15 @@ int main(int argc, char *argv[]){
 	add_user(user,"name");
       }
 
-      strcpy(qstr,"insert into finish_job values(NULL");
+      strcpy(qstr,"insert delayed into finish_job values(NULL");
       
       Mytime *subtime          = time_to_unixtime_value(finishJob->submitTime);
       Mytime *starttime        = time_to_unixtime_value(finishJob->startTime);
       Mytime *endtime          = time_to_unixtime_value(finishJob->endTime);
       Mytime *lastResizeTime   = time_to_unixtime_value(finishJob->lastResizeTime);
 
-      char *askedHostsString = join_string(finishJob->askedHosts,finishJob->numAskedHosts,",");
-      char *execHostsString  = join_string(finishJob->execHosts,finishJob->numExHosts,",");
+      //char *askedHostsString = join_string(finishJob->askedHosts,finishJob->numAskedHosts,",");
+      //char *execHostsString  = join_string(finishJob->execHosts,finishJob->numExHosts,",");
 
       struct lsfRusage lsfr = finishJob->lsfRusage;
 
@@ -136,9 +138,9 @@ int main(int argc, char *argv[]){
       add_query_string_value        (qstr,finishJob->jobFile,conn);		
       add_query_int_value           (qstr,finishJob->numAskedHosts);		
       add_query_int_value           (qstr,finishJob->hostFactor);
-      add_query_string_value        (qstr,askedHostsString,conn);
+      add_query_string_value        (qstr,"",conn);
       add_query_int_value           (qstr,finishJob->numExHosts);		
-      add_query_string_value        (qstr,execHostsString,conn);		
+      add_query_string_value        (qstr,"",conn);		
       add_query_float_value         (qstr,finishJob->cpuTime);
       add_query_string_value        (qstr,finishJob->jobName,conn);		
       
@@ -175,9 +177,12 @@ int main(int argc, char *argv[]){
       add_query_string_value        (qstr,finishJob->command,conn);
       
       strcat(qstr,")");
-      
+      qcount++; 
       //printf("Query string %s\n",qstr);
-	
+      if (qcount%1000 == 0) {
+        printf("Queries loaded = %d\n",qcount);
+      }
+      
       if (mysql_query(conn,qstr)){
 	fprintf(stderr,"%s\n",mysql_error(conn));
 	exit(1);
@@ -187,8 +192,6 @@ int main(int argc, char *argv[]){
       free(starttime);
       free(endtime);
       free(lastResizeTime);
-      free(askedHostsString);
-      free(execHostsString);
     }
   }
   mysql_close(conn); 
