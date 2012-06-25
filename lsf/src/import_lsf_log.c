@@ -11,41 +11,125 @@
 #include "utils.h"
 #include "labgroup.h"
 #include "mysql.h"
+#include <argp.h>
 
 /* /n/RC_Team/lsf_logs_sorted/acct contains old logs */
 /* /lsf/work/lsf-odyssey/logdir/lsb.acct is the current one */
 
+/* Argument parsing code */
+
+static error_t parse_opt(int key, char *arg, struct argp_state *state);
+
+static        char doc[]       = "\nImports LSF log files (lsb.acct.*) to a mysql database\n";
+static        char args_doc[]  = "";
+
+static struct argp_option options[] = {
+  {"test",    't',  0,     0,       "Parse file but don't save to mysql"},
+  {"infile",  'f',  "FILE",0,       "The LSF lsb.acct.n file to parse"},
+  {"force",   'F',  0,     0,       "Overwrite any existing records"},
+  {"check",   'c',  0,     0,       "Check whether each record exists before saving"},
+  {"print",   'p',  0,     0,       "Print the mysql insert statements"},
+  { 0 }
+};
+
+struct arguments {
+  char *args[2];
+  int   test;
+  int   force;
+  int   check;
+  int   print;
+  char *infile;
+};
+
+static struct argp argp        = {options, parse_opt, args_doc, doc};
+
+static error_t parse_opt(int key, char *arg, struct argp_state *state) {
+  struct arguments *arguments = state->input;
+  
+  switch (key)  {
+    
+  case 't':
+    arguments->test = 1;
+    break;
+  case 'F':
+    arguments->force = 1;
+    break;
+  case 'f':
+    arguments->infile = arg;
+    break;
+  case 'c':
+    arguments->check = 1;
+    break;
+  case 'p':
+    arguments->print = 1;
+    break;
+    
+  case ARGP_KEY_ARG:
+    if (state->arg_num >= 5) {
+      argp_usage(state);
+    }
+    arguments->args[state->arg_num] = arg;
+    break;
+    
+  case ARGP_KEY_END:
+    if (state->arg_num < 0) {
+      argp_usage(state);
+      break;
+      
+    default: 
+      return ARGP_ERR_UNKNOWN;
+    }
+  }
+  return 0;
+}
+
+
+/* Record parsing code */
+
 int  event_time_exists       (MYSQL *conn, char *starttime,char *endtime);
 int  finish_job_exists       (MYSQL *conn, struct jobFinishLog *finishJob);
+int  delete_job(MYSQL *conn, struct jobFinishLog *finishJob);
 void check_whether_finish_jobs_exist(MYSQL *conn,FILE *fp);
 
+int main(int argc, char **argv){
 
-int main(int argc, char *argv[]){
+  struct     arguments arguments;
+
+  arguments.check = 0;
+  arguments.test  = 0;
+  arguments.force = 0;
+  arguments.infile = "-";
+
+  argp_parse(&argp,argc,argv,0,0,&arguments);
+  
+  printf ("ARG1 = %s\nARG2 = %s\ninfile = %s\n"
+	  "check = %s\nforce = %s\ntest = %s\n",
+	  arguments.args[0], arguments.args[1],
+	  arguments.infile,
+	  arguments.check? "yes" : "no,",
+	  arguments.force? "yes" : "no",
+	  arguments.test?  "yes" : "no");
 
   FILE      *lsf_fp;
   MYSQL     *conn;
-  char      *lsffile = argv[1];
 
   struct eventRec     *record;
   struct jobFinishLog *finishJob;
 
   int qcount = 0;
 
-  if (argc != 2) {
-    printf("Usage: %s <lsb.acct file>\n", argv[0]);
-    exit(-1);
-  }
-    
-  lsf_fp = fopen(lsffile, "r");
+  lsf_fp = fopen(arguments.infile, "r");
 
   if (lsf_fp == NULL) {
-    perror(lsffile);
+    perror(arguments.infile);
     exit(-1);
   }
   
   conn =  Mysql_Connect();
 
-  check_whether_finish_jobs_exist(conn,lsf_fp);
+  if (!arguments.force) {
+    check_whether_finish_jobs_exist(conn,lsf_fp);
+  }
 
   int lineNum;
 
@@ -65,7 +149,7 @@ int main(int argc, char *argv[]){
     if (record->type == EVENT_JOB_FINISH) {
 	  
       finishJob = &(record->eventLog.jobFinishLog);
-
+      //printf("Job id is %d\n",finishJob->jobId);
       char *name = finishJob->userName;
       User *user = find_user(name);
 
@@ -76,7 +160,7 @@ int main(int argc, char *argv[]){
 	add_user(user,"name");
       }
 
-      strcpy(qstr,"insert delayed into finish_job values(NULL");
+      strcpy(qstr,"insert into finish_job values(NULL");
       
       Mytime *subtime          = time_to_unixtime_value(finishJob->submitTime);
       Mytime *starttime        = time_to_unixtime_value(finishJob->startTime);
@@ -108,6 +192,7 @@ int main(int argc, char *argv[]){
 
 
       add_query_string_value        (qstr,finishJob->queue,conn);
+
       add_query_float_value(qstr,lsfr.ru_utime);  /* User time used */
       add_query_float_value(qstr,lsfr.ru_stime);  /* System time used */
       add_query_float_value(qstr,lsfr.ru_maxrss); /* Max rss */
@@ -178,12 +263,36 @@ int main(int argc, char *argv[]){
       
       strcat(qstr,")");
       qcount++; 
-      //printf("Query string %s\n",qstr);
+
+      if (arguments.print) {
+	printf("Query string %s\n",qstr);
+      }
       if (qcount%1000 == 0) {
         printf("Queries loaded = %d\n",qcount);
       }
       
-      if (mysql_query(conn,qstr)){
+      int save = 1;
+
+      if (arguments.test) {
+	save = 0;
+      }
+
+      if (arguments.check) {
+	int count = finish_job_exists(conn,finishJob);
+
+	if (count > 0)  {
+	  if (arguments.force) {
+	    printf("Job %d %s exists - deleting\n",finishJob->jobId,finishJob->queue);
+	    delete_job(conn,finishJob);
+	  } else {
+	    printf("Job %d %s exists - not storing\n",finishJob->jobId,finishJob->queue);
+	    save = 0;
+	  }
+	}
+      }
+
+
+      if (save  && mysql_query(conn,qstr)){
 	fprintf(stderr,"%s\n",mysql_error(conn));
 	exit(1);
       } 
@@ -250,15 +359,19 @@ int finish_job_exists(MYSQL *conn, struct jobFinishLog *finishJob) {
   MYSQL_ROW  row;
 
   char      *qstr    = (char *)malloc(1000 * sizeof(char));
-  Mytime    *timestr = time_to_unixtime_value(finishJob->submitTime);  
 
   char       jobstr[100];
   char       userstr[100];
 
-  sprintf(jobstr,"%d",finishJob->jobId);
-  sprintf(userstr,"%d",finishJob->userId);
+  char       utime[100];
+  char       stime[100];
 
-  strcpy(qstr,"select job_id,submit_time,user_id from finish_job where ");
+  sprintf(jobstr, "%d",finishJob->jobId);
+  sprintf(userstr,"%d",finishJob->userId);
+  sprintf(utime,  "%f",finishJob->lsfRusage.ru_utime);
+  sprintf(stime,  "%f",finishJob->lsfRusage.ru_stime);
+
+  strcpy(qstr,"select job_id,user_id,ru_utime,ru_stime from finish_job where ");
 
   strcat(qstr,"job_id = ");
   strcat(qstr,jobstr);
@@ -266,8 +379,13 @@ int finish_job_exists(MYSQL *conn, struct jobFinishLog *finishJob) {
   strcat(qstr," and user_id = ");
   strcat(qstr,userstr);
 
-  strcat(qstr," and submit_time = ");
-  strcat(qstr,timestr->mysql_str);
+  strcat(qstr," and ru_utime = ");
+  strcat(qstr,utime);
+
+  strcat(qstr," and ru_stime = ");
+  strcat(qstr,stime);
+
+  //printf("Checking %s\n",qstr);
 
   if (mysql_query(conn,qstr)){
     fprintf(stderr,"%s\n",mysql_error(conn));
@@ -275,7 +393,62 @@ int finish_job_exists(MYSQL *conn, struct jobFinishLog *finishJob) {
   } 
   
   free(qstr);
-  free(timestr);
+
+  res = mysql_use_result(conn);
+
+  int count = 0;
+
+  if (res) {
+
+    while((row = mysql_fetch_row(res))!= NULL) {
+      count = atoi(row[0]);
+    }
+
+    mysql_free_result(res);
+
+  }   
+  return count;
+}
+
+int delete_job(MYSQL *conn, struct jobFinishLog *finishJob) {
+  MYSQL_RES *res;
+  MYSQL_ROW  row;
+
+  char      *qstr    = (char *)malloc(1000 * sizeof(char));
+
+  char       jobstr[100];
+  char       userstr[100];
+
+  char       utime[100];
+  char       stime[100];
+
+  sprintf(jobstr, "%d",finishJob->jobId);
+  sprintf(userstr,"%d",finishJob->userId);
+  sprintf(utime,  "%f",finishJob->lsfRusage.ru_utime);
+  sprintf(stime,  "%f",finishJob->lsfRusage.ru_stime);
+
+  strcpy(qstr,"delete from finish_job where ");
+
+  strcat(qstr,"job_id = ");
+  strcat(qstr,jobstr);
+
+  strcat(qstr," and user_id = ");
+  strcat(qstr,userstr);
+
+  strcat(qstr," and ru_utime = ");
+  strcat(qstr,utime);
+
+  strcat(qstr," and ru_stime = ");
+  strcat(qstr,stime);
+
+  printf("Deleting %s\n",qstr);
+
+  if (mysql_query(conn,qstr)){
+    fprintf(stderr,"%s\n",mysql_error(conn));
+    exit(1);
+  } 
+  
+  free(qstr);
 
   res = mysql_use_result(conn);
 

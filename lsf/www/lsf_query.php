@@ -9,8 +9,8 @@
 require_once("third-party/MysqlMagic.php");
 
 $sqlhost="localhost";
-$sqluser="root";
-$sqlpass="98lsf76";
+$sqluser="mysql";
+$sqlpass="xxxxxx";
 $sqlbase="lsf2";
 
 $user = "";
