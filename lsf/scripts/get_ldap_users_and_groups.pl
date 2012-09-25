@@ -18,7 +18,7 @@ $fh->open("$cmd |");
 
 my $uid;
 my $cn;
-my $groupstr;
+my @groups;
 
 while (<$fh>) {
    chomp;
@@ -26,10 +26,12 @@ while (<$fh>) {
    if (/cn: (.*)/) {
       my $tmpcn = $1;
 
-      print "$uid\t$cn\t$groupstr\n";
+      foreach my $group (@groups) {
+         print "$uid $group\n";
+      }
       $cn = $tmpcn;
       $uid = "";
-      $groupstr = "";
+      undef @groups;
    } elsif (/uid: (.*)/) {
       $uid = $1;
    } elsif (/memberOf: (.*)/) {
@@ -42,15 +44,14 @@ while (<$fh>) {
              my $type  = $1;
              my $group = $2;
              if ($type eq "CN") {
-                if ($groupstr ne "") {
-                   $groupstr .= "\t";
-                }
-                $groupstr .= $group;
+                push(@groups,$group);
              }
          }
       }
    }
 }
      
-print "$uid\t$cn\t$groupstr\n";
+foreach my $group (@groups) {
+   print "$uid $group\n";
+}
 
