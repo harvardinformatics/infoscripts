@@ -9,13 +9,16 @@ def find_pos_files(dir):
     p = re.compile('s_(\d)_(\d+)_pos.txt');
 
     for infile in listing:
-        if m = p.match(infile):
-            print m.group(1)
-            print m.group(2)
+        m = p.match(infile)
+
+        pprint.pprint(m)
+
+        if m.group.has_key(2) = True:
             if posfiles.has_key(m.group(1)) == False:
                 posfiles[m.group(1)] = {}
 
             posfiles[m.group(1)][m.group(2)] = infile
+
     return posfiles
 
 def find_clocs_filter_control_files(dir,files):
