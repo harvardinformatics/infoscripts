@@ -119,7 +119,13 @@ def parse_fastq_file(samples,fastqfile):
                 print "Two matches"
             else:
                 print "No matches"
-                 
+                filename = "Undetermined_"+index+".fastq";
+
+                if files.has_key(filename) == False:
+                    files[filename] = open(filename,"w")
+
+                files[filename].writelines(lines)
+
             lines = list()
 
         lines.append(line)
