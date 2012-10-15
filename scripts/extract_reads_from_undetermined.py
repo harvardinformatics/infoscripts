@@ -65,106 +65,139 @@ def parse_fastq_file(samples,fastqfile):
 
     lines = list()
     files = {}
+    reads = {}
 
+    m_obj = re.search(r".*(R\d).*",fastqfile)
+
+    readnum = "1"
+
+    if m_obj:
+      readnum = m_obj.group(1)
+ 
+    print "File ",fastqfile," ",readnum
+
+    matches = 0;
+    count   = 0; 
     for line in file:
         if len(lines) == 4:
-            header   = lines[0]
-            sequence = lines[1]
-            three    = lines[2]
-            qual     = lines[3]
+            count = count + 1
+            (s,index) = parse_read(lines,samples)
 
-            index    = header
-            lane     = header
-            index    = re.sub('^.*:(.*?)','\1',index)
-            index    = re.sub('\n','',index)
-            f = header.split(':')
+            if count%100000 == 0:
+               print "Count %s : matches %s"%(count,matches)
 
-            lane = f[3]
-
-            index = index[1:]
-            print "Index :%s: lane %s : %s" % (index,lane,header)
-
-            s = samples[lane]
-
-            start1 = index[:2]
-            end1   = index[3:]
-
-            found   = 0
-            sample  = ""
-            project = ""
-
-            for i in s.keys():
-                start2 = i[:2]
-                end2   = i[3:]
-
-
-                if start1 == start2 and end1 == end2:
-                    print "Found %s %s"%(index,i)
-                    found = found+1
-                    sample = s[i]['sample']
-                    project = s[i]['project']
-
-
-            if found == 1:
-                print "Sample is %s %s %s"%(sample,project,header)
-
-                filename = sample + "_undetermined.fastq"
-
-                if files.has_key(filename) == False:
-                    files[filename] = open(filename,"w")
-
-                files[filename].writelines(lines)
-
-            elif found > 1:
-                print "Two matches"
-            else:
-                print "No matches"
-                filename = "Undetermined_"+index+".fastq";
-
-                if files.has_key(filename) == False:
-                    files[filename] = open(filename,"w")
-
-                files[filename].writelines(lines)
+            (files,reads) = save_read(s,index,lines,files,readnum,reads)
 
             lines = list()
 
         lines.append(line)
     
     if len(lines) == 4:
-        header   = lines[0]
-        sequence = lines[1]
-        three    = lines[2]
-        qual     = lines[3]
-        
-        index    = re.sub("^.*:(.*?)\n","\1",header)
-        lane     = re.sub("^.*?:.*?:.*?:(.*?):.*\n",'\1',header)
-        
-        print "Index %s lane %s : %s" % (index,lane,header)
+        (s,index) = parse_read(lines,samples)
 
-            
-    
+        if count%100000 == 0:
+          print "Count %s : matches %s"%(count,matches)
+        
+        (files,reads) = save_read(s,index,lines,files,readnum,reads)
 
+    print "Done\n";
+
+def parse_read(lines,samples):
+   header   = lines[0]
+   sequence = lines[1]
+   three    = lines[2]
+   qual     = lines[3]
+
+   index    = header
+   lane     = header
+   index    = re.sub('^.*:(.*?)','\1',index)
+   index    = re.sub('\n','',index)
+
+   f = header.split(':')
+
+   lane  = f[3]
+   index = index[1:]
+
+   if samples.has_key(lane):
+     s     = samples[lane]
+   else:
+     s     = {}
+
+   return (s,index)
+
+def save_read(s,index,lines,files,readnum,reads):
+    # First look in the samplesheet indices for a match
+    found = 0
+    sample = ""
+    project = ""
+    realindex = ""
+
+    for i in s.keys():
+        if i == index:
+           found = 1
+           sample = s[i]['sample']
+           project = s[i]['project']
+           realindex = i
+
+    if found == 1:
+    # print "Sample is %s %s %s"%(sample,project,header)
+
+       filename = sample + "_"+realindex+"_"+readnum+"_undetermined.fastq"
+    else:
+       filename = "UnknownSample_"+index+"_"+readnum+"_undetermined.fastq"
+
+
+    #sys.exit()
+
+    if reads.has_key(filename) == False:
+       reads[filename] = {} 
+       reads[filename]['count'] = 0
+       reads[filename]['lines'] = list()
+
+    readcount = reads[filename]['count']
+
+    if (readcount >= 10000):
+      if files.has_key(filename) == False:
+         print "Opening file %s %d\n"%(filename,readcount)
+         files[filename] = open(filename,"a")
+
+      if readcount == 10000:
+         for l in reads[filename]['lines']:
+           files[filename].writelines(l)
+
+         reads[filename]['count'] = 10001
+
+      files[filename].writelines(lines)
+
+    else:
+
+      reads[filename]['lines'].append(lines)
+      reads[filename]['count'] = reads[filename]['count']+1
+
+    return (files,reads)
+         
 def help():
     print "Interrogates an Illumina fastq file and attempts to match reads to samples based on the lane and the index\n";
     print "This is useful when the Illumina demultiplexing has failed and --mismatches can't be used\n";
 
-    print "\nUsage: python extract_reads_from_undetermined.py <samplesheet.csv> <fastqfile>\n";
+    print "\nUsage: python extract_reads_from_undetermined.py <fastqfile> [<samplesheet.csv>]\n";
 
 
 if __name__ == '__main__':
   
-  if len(sys.argv) != 3:
+  if len(sys.argv) < 2:
     help()
     sys.exit(0)
 
-  samplesheet  = sys.argv[1]
-  fastqfile    = sys.argv[2]
+  fastqfile    = sys.argv[1]
 
-
-  str = "Parsing samplesheet [%s]" % samplesheet
-
-  samples = parse_samplesheet(samplesheet)
-
+  samples = {}
+ 
+  if len(sys.argv) == 3:
+    samplesheet  = sys.argv[2]
+    str = "Parsing samplesheet [%s]" % samplesheet
+    samples = parse_samplesheet(samplesheet)
+  
   str = "Parsing fastq file [%s]" % fastqfile
 
   parse_fastq_file(samples,fastqfile)
