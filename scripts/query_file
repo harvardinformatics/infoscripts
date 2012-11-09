@@ -1,0 +1,13 @@
+#!/n/sw/perl-5.14.1/bin/perl
+
+use Bio::DB::Flat::BinarySearch;
+
+my $index = new Bio::DB::Flat::BinarySearch(-directory         => "/n/scratch01/mclamp/indices/" . shift,
+                                            -primary_namespace => "ID");
+
+while (my $id = shift) {
+  my $entry = $index->get_entry_by_id($id);
+  print $entry ;
+}
+
+
