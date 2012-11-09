@@ -13,7 +13,7 @@ def find_pos_files(dir):
 
         pprint.pprint(m)
 
-        if m.group.has_key(2) = True:
+        if m.group().has_key(2) = True:
             if posfiles.has_key(m.group(1)) == False:
                 posfiles[m.group(1)] = {}
 
