@@ -1,0 +1,19 @@
+#!/n/sw/perl-5.14.1/bin/perl
+
+use Bio::DB::Flat::BinarySearch;
+
+my $dbname = shift;
+my $file = shift;
+
+my $index = new Bio::DB::Flat::BinarySearch(-start_pattern => "^>",
+                                            -primary_pattern => "^>transcript_cluster:MoGene-1_0-st-v1:(\\d+)\\;",
+                                            -primary_namespace => "ID",
+                                            -write_flag        => 1,
+                                            -directory         => "/n/scratch01/mclamp/indices",
+                                            -dbname            => $dbname);
+
+my @files = ($file);
+
+$index->build_index(@files);
+
+
