@@ -3,8 +3,7 @@
 
 //@HD     VN:1.0  SO:unsorted
 //@SQ     SN:scaffold_6   LN:8822787
-//Au_s32705       16      scaffold_6      524     255     7638H13M122M3D56M2I9M2D13M11I63M167H   *       0       0       TGGTACAATGCTTAACTAGAAAGGTTTACTTTTAATTGGATTGTCCAAACAGAAAAATCATTATTGTACTTTCTCTTGGAGGCGCGCACCTTCATAGGGAAAAATCTTGTATAAGATACTCCATACCTAAAAGGACAGAAAAATAATATTATCTTAATCATTATTATTTCTATATTTTCTTTTCAGTCTTAACAATATATCTCATCACTTTCATCTTATAGCTTTTTTCAGAAGGAGGAACTGGAACAATCAAGAAAACTTGTTGGTTGGTTGTTGACGTCCTCAAAATTAGGTTTCATCTTCAACCTCTATAGTTTGAGATTGGTTCAGGTTTGTTCTGTTTTATTAAATTTTTAGTAATCTGTGTTGTTTTGCTTTTTGTAATGTTTGTAGTTTGAACATTAACATATTTTAGACCTTTTGATGAATAATGCTATTTTCTAATTAGGATTTTGAGACCTTGCTTTTCTTGAAGGTTGTGGATTAAAAATCAAAATAAATATGGTTGCATTATACTATTTTTTCCTAGGTCTGACCTGGTTTATGTATTCTCGTTATGTACTCTGTTTTTTTTTTTTTAATGAAAAATAATGTTATAAAATAAAATAAACTGGTACCTGACTTGATGTTACCTTCCACAATATTGTGGATCAAACCAACACTAAACATAACATGATGAGGAACTAGATTCTAGCTTGTCTTCTCGCCGAGAATGAAGTGTAGGTTTAAATTTTACATGTTTTTTTTTTTTTTTTTTTTTGCTTACCTATGCATGATACCATTATTAGTAAGTTTAAGTTATTTAGCTGCCTTTAATATTATTTTTATAGATGAACAACAGAATATGGTAATCATATTGTACGTTTTCAAAGTTACGCTAGTAATATAATCATATTGTAATCTATATCAATTTTTTGTTGTTCATAATCATATTGTATCCATTGTTTATGAATTAAACTAGTTAATTTTGAT    *
-//Au_s10323       0       scaffold_6      535     255     16788H14M35II10M4D57M11I16M18I4M19I9M8I48M4I173M24I80M3I27M1D17M11D10M4D13M16I5M5I34M6D11M97I12M5I11M9D12M2I14M2D12M1I43M105I3M4D13M13D8M2D29M3I19M1I8M3D16M4I76M1I8M2I62M2I16M4I25M5I12M7D11M4D16M4I33M1I5M4D30M5D16M1I8M3I28M1I86M6I72M88I5M6D15M1I12M24D26M1I8M1I69M12D4M91I46M18I12M3D15M17D17M2D86M31D17M25D13M51D6M38D14M50D25M4D132M1I3M13D43M2  *       0       0       CCTAACTAAATTGGTAGACATGTTAACTTAACTGAACTAAATTGTCCAAACAGAATACAACTAATGCACAAGTGCACAACCCTAACATAAGTCATCATTGTACTTGCTTGTTTTGAGCAGCGCGCCTTCATTGTTTCAAGGGCCATGTGTCAGAAATATCTTCTCTGTGATATCTTCTCTGTGATTTGCTTCTAACAACTTGCATTCTCATCATTGTAATTTCTGTTTTTTCGCTTTCCTCTTCTTTGTGAAATATGCCCTAATCTCTTATTCTCCCCCCTTCCATCGTTCAACATTTACTTTAGAAAAAACAACTGAAGACTGAAGAGAATAGGAAAAACCTAGTTGTGGTCTTTATCGTCTTCAAAACTAAATTCAGTCTTTGTGAATGGATCAGGTTTGTATTGTTTTGTTTATTTTGTGGTCTGTTGTTTTCTTTCTTGTAATGTTTGAAGTATATATGAACAAACTCAACAACATATCTTTTTTTCTTAAATCTTGAATAATGGTTCATGATATTTTAGTTGTGATAACTGTTGATGAATATTTTTCACCTAGGATTCCTTCTACTTTAGCTTCAATTTATTTGTGTATGAGAACGGGATAAAAATCCCATGTACTTTGCTTGTATTGATTTGTGAATAGTTTTTAATTTCTCAAGATAGGGGTTTTGGGTGAAATATTTCAAACTTAAAAAAAAAAGGTTAATAATCATATTGGGCTGTTGGTCTTTAATTTATCTAACAAAAGAGAAGAAGTACAATATTGTGTTCATAACTATAATCAGATTGCACTTAAAATATGCGAATTAAATTGTTTCATTTTATTTCCTCAGATGGATGTTCAAAAGGTTGTATAACAATCTTTGGCGGTTGCTCTCCGTGAGGAGGGACTCCAAGTATCTCGTTTGGAAGAGATCAGAGACATAATCTCTAAACTAGATATCAACTGTGTCGATTCTGACGACGGAGATTTTGTGATCATTACAGACATCCACAAGGGCAGTCCTTCAGCTCCAGATTATCTTAAAACGCCTAAAAAAATCAAAATGGGCAACTTTAGATCTATTGATCACTTTCTAGACTCACCATTGTCGAATACTACTTCAGATTTGGATGAACGTACTGGTGCAAAGACATCAAAAACTCTCTTCAATGAGTATGTAGTAGTTCAGCTATACATCGATCACCAATGCGGGGAGTATTTACAGAAAAAGAACATTGGTTTTTTAAATATGTGGTTGATCANNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNTTATAACAAGACTTATGCCTTATTTAGAAATGAAAATGTTAAACAATGTTGATGGAATATACTAATGTGGTCATGTTTTTCTTGCCTAGTAACATTATTGCAGATATCTGGTATGTCNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNTATTCGACTCAATCCTTGGTACCAATTGGCTCTACAATTGGGTAAGTTGGATTCCATGCCTTCCATATTATTTTTTACAACTTATTCTATAACACTTCATATTTAATTCAATTACTGCAAATCCCTGGTTATAGATGATGGAATTATGGTGCACGCTTTTGAATGCTCGGCAAAAGGGAGTGCCCAGTGGTAGCCGACATCACCATCACACCGTTGCTCATTTTGAGAACATGGTTGGGTTTTTTCGCATACATACTGATTATTTCTGATTTGTATAATGGATAGTCCACATACTTAAGGTTAATTTAAATAAATGACTGCGCAGAGCGTGTTCTCCTGCAGCCAAGAGGACTTCAATGTTGGCATTGCAATTCGCAGTTTAAGGATTGGAGGGATTCAGGACTACTCAAGAGTCTGTAATACATTCATGGTATAAGTCTTTATATAGTTTTTTATATGATGGGTTTAAGAAAAGTAAGTCAATTTTCTGCGCATCTACAACTTGTCTTACCAGTTCTGAAAGATAGGCATTGGATGCTATTTGTCTTCAACATAGAAAATCTGCATTTATCAATTCTTGACTCCAAACAGACAGATGCGACTACAATATCTGGAGGTGTTGAATTTATGTCCAACATGNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNTACCTTTGTTGTGTGATTTATCCTTCTATCATCTACTACTTGGTAAGATTAACCTTGTATATGTTCTTCATTTCATAGGTCCGCAATGTGCATGCTGCACTACTACAACTTGGTTGTGAAGCAGTTCAAGGCAAATCTGCAAAGGTNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNCCGTCAAATTCCTGATTGCCCGCAACAACTTAATGGGTAAGTTGAGTTTTAATGAATAAATTTTTTAAATTCATTACACTTGCTATTGCTAACAGTACTGATTTAATTAATAGGTATGATTGTGGAATATATGTGATGAAATATATGGAGTGTTGGAATGGATCAAGGTTCACGTCTGAAATCACCCAGGTAACAATAATATGTTCACTTCATGAAAAAATGTCGGCATATGTATAGGGTGAAATAATTAATTTACTTTTCTTGTATAGGGGGAGATGTCATTTTATAGGCAGCGGTTACTAGTTGATATAATTATGGCTGAAGAGAACATGGTCAGACACTATTGCCTGTGGGATGATCGATACATTGAAGCTGATATGCAAATTTACCTTGCTGACACACAGTTTGGCAATTTTCGCTGAAACGTGTTTGGGCGTAT        *
+//Au_s32705       16      scaffold_6      524     255     7638H13M122M3D56M2I9M2D13M11I63M167H   *       0       0       TGGTACAATGCTTAACTAGAA
 
 
 // SAM fields    queryname  
@@ -79,7 +78,6 @@ while ($line = trim(fgets($fh))) {
   if (preg_match("/^@/",$line)) {
     continue;
   }
-
   $f = preg_split("/\t/",$line);
 
   $qname  = $f[0];
@@ -95,6 +93,21 @@ while ($line = trim(fgets($fh))) {
 
   }
 
+  $mats = array();
+
+  $mats['H'] = 0;
+  $mats['M'] = 0;
+  $mats['I'] = 0;
+  $mats['D'] = 0;
+
+  if (preg_match_all("/(\d+)(\S)/",$cigar,$match)) {
+        $i = 0;
+        while($i < sizeof($match[1])) {
+          $mats[$match[2][$i]] += $match[1][$i];
+          $i++;
+        } 
+  }
+  
   if (!isset($queries[$qname])) {
     $queries[$qname] = array();
   }
@@ -109,7 +122,11 @@ while ($line = trim(fgets($fh))) {
   $hit['tend']   = $mpos+strlen($seq)-1;
   $hit['seq']    = $seq;
   $hit['sam']    = $line;
-  
+ 
+  $hit['match']  = $mats['M']; 
+  $hit['indel']  = $mats['I'] + $mats['D'];
+  $hit['indelfrac'] = intval(100*$hit['indel']/$hit['match']);
+
   if ($bflag == 16) {
     $hit['strand'] = -1;
   } else if ($bflag == 0) {
@@ -142,11 +159,10 @@ foreach ($queries as $qname => $hits) {
   $rclus = array();
 
   foreach ($newfhits as $hit) {
-    print "F\t".$hit['tstart'] . "\t" . $hit['qstart'] . "\t" . $hit['strand'] . "\n";
 
     $found = 0;
 
-    foreach ($fclus as $fc) {
+    foreach ($fclus as $k => $fc) {
       $cstart = $fc['clus_start'];
       $cend   = $fc['clus_end'];
 
@@ -154,11 +170,13 @@ foreach ($queries as $qname => $hits) {
       $qend   = $fc['query_end'];
 
       if ($hit['tstart'] > $cend &&  $hit['qstart'] > $qend) {
-	$fc['hits'][] = $hit;
+	$fclus[$k]['hits'][] = $hit;
 	
-	$fc['clus_end'] = $hit['tend'];
-	$fc['query_end'] = $hit['qend'];
+	$fclus[$k]['clus_end'] = $hit['tend'];
+	$fclus[$k]['query_end'] = $hit['qend'];
 
+        $fclus[$k]['tlen']      = $fclus[$k]['clus_end'] - $fclus[$k]['clus_start']+1;
+        $fclus[$k]['hitlen']    += strlen($hit['seq']);
 	$found = 1;
       }
     }
@@ -170,22 +188,18 @@ foreach ($queries as $qname => $hits) {
       $newclus['clus_end']    = $hit['tend'];
       $newclus['query_start'] = $hit['qstart'];
       $newclus['query_end']   = $hit['qend'];
-      
+      $newclus['tlen']        = $newclus['clus_end'] - $newclus['clus_start']+1;
+      $newclus['hitlen']      = strlen($hit['seq']);
+      $newclus['strand']      = 1; 
       $fclus[] = $newclus;
     }
   }
 
-
-  foreach ($fclus as $clus) {
-    print "Forward cluster\t$qname\t".sizeof($clus['hits']) . "\t" . $clus['clus_start'] . "\t" . $clus['clus_end'] . "\t" . $clus['query_start'] . "\t" . $clus['query_end'] . "\n";
-  }
-
   foreach ($newrhits as $hit) {
-    print "R\t".$hit['tstart'] . "\t" . $hit['qstart'] . "\t" . $hit['strand'] . "\n";
 
     $found = 0;
 
-    foreach ($rclus as $rc) {
+    foreach ($rclus as $k=>$rc) {
       $cstart = $rc['clus_start'];
       $cend   = $rc['clus_end'];
 
@@ -193,11 +207,13 @@ foreach ($queries as $qname => $hits) {
       $qend   = $rc['query_end'];
 
       if ($hit['tstart'] > $cend &&  $qstart > $hit['qend']) {
-	$rc['hits'][] = $hit;
+        print "Adding\n";
+	$rclus[$k]['hits'][] = $hit;
 	
-	$rc['clus_end']  = $hit['tend'];
-	$rc['query_end'] = $hit['qend'];
-
+	$rclus[$k]['clus_end']  = $hit['tend'];
+	$rclus[$k]['query_end'] = $hit['qend'];
+        $rclus[$k]['tlen']      = $rclus[$k]['clus_end'] - $rclus[$k]['clus_start']+1;
+        $rclus[$k]['hitlen']   += strlen($hit['seq']);
 	$found = 1;
       }
     }
@@ -210,13 +226,28 @@ foreach ($queries as $qname => $hits) {
       $newclus['query_start'] = $hit['qstart'];
       $newclus['query_end']   = $hit['qend'];
       
+      $newclus['tlen']        = $newclus['clus_end'] - $newclus['clus_start']+1;
+      $newclus['hitlen']      = strlen($hit['seq']);
+      $newclus['strand']      = -1;
       $rclus[] = $newclus;
+
     }
   }
-  foreach ($rclus as $clus) {
-    print "Reverse cluster\t$qname\t".sizeof($clus['hits']) . "\t" . $clus['clus_start'] . "\t" . $clus['clus_end'] . "\t" . $clus['query_start'] . "\t" . $clus['query_end'] . "\n";
-  }
 
+
+  $allclus = array_merge($fclus,$rclus);
+  $allclus = array_sort($allclus,'hitlen','DESC');
+
+  $i = 0;
+  foreach ($allclus as $clus) {
+
+    print "Cluster\t$i\t$qname\t". $clus['strand'] . "\t" . $clus['hitlen']."\t".sizeof($clus['hits']) . "\t" . $clus['clus_start'] . "\t" . $clus['clus_end'] . "\t" . $clus['query_start'] . "\t" . $clus['query_end'] . "\n";
+
+    foreach ($clus['hits'] as $hit) {
+      print "$i\t" .strlen($hit['seq']) . "\t" . $hit['indelfrac'] . "\t".$hit['sam']."\n";
+    }
+    $i++;
+  }
 }
 
 function array_sort($arr, $sortkey, $order="ASC") {
