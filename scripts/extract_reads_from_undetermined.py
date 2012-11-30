@@ -110,9 +110,10 @@ def parse_read(lines,samples):
 
    index    = header
    lane     = header
+   #index    = re.sub('^.*:(.*?)','\1',index)
    index    = re.sub('^.*:(.*?)','\1',index)
    index    = re.sub('\n','',index)
-
+   index    = index[0:7]
    f = header.split(':')
 
    lane  = f[3]
@@ -189,15 +190,17 @@ if __name__ == '__main__':
     help()
     sys.exit(0)
 
-  fastqfile    = sys.argv[1]
-
   samples = {}
  
   if len(sys.argv) == 3:
-    samplesheet  = sys.argv[2]
+    samplesheet  = sys.argv[1]
     str = "Parsing samplesheet [%s]" % samplesheet
     samples = parse_samplesheet(samplesheet)
   
-  str = "Parsing fastq file [%s]" % fastqfile
+  i = 2 
 
-  parse_fastq_file(samples,fastqfile)
+  while i < len(sys.argv):
+    fastqfile = sys.argv[i]
+    str = "Parsing fastq file [%s]" % fastqfile
+    parse_fastq_file(samples,fastqfile)
+    i=i+1
