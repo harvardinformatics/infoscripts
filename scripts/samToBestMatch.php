@@ -63,21 +63,25 @@ $f = preg_split("/\n/",$tmpref);
 $header = array_shift($f);
 
 print "Reference header $header\n";
+
 $refstr = "";
 
 foreach ($f as $line) {
   $refstr .= $line;
 }
+
 print "Length of refstr " . strlen($refstr) . "\n";
 
 $queries = array();
 
 $fh = fopen($samfile,"r");
+
 while ($line = trim(fgets($fh))) {
 
   if (preg_match("/^@/",$line)) {
     continue;
   }
+
   $f = preg_split("/\t/",$line);
 
   $qname  = $f[0];
@@ -88,9 +92,8 @@ while ($line = trim(fgets($fh))) {
   $cigar  = $f[5];
   $seq    = $f[9];
 
-  if (preg_match("/^(\d+)H/",$cigar,$match)) {
+  if (preg_match("/^(\d+)[SH]/",$cigar,$match)) {
     $qpos = $match[1];
-
   }
 
   $mats = array();
@@ -99,6 +102,7 @@ while ($line = trim(fgets($fh))) {
   $mats['M'] = 0;
   $mats['I'] = 0;
   $mats['D'] = 0;
+  $mats['S'] = 0;
 
   if (preg_match_all("/(\d+)(\S)/",$cigar,$match)) {
         $i = 0;
@@ -233,7 +237,6 @@ foreach ($queries as $qname => $hits) {
 
     }
   }
-
 
   $allclus = array_merge($fclus,$rclus);
   $allclus = array_sort($allclus,'hitlen','DESC');
