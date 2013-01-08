@@ -38,7 +38,7 @@ sub findpos {
 
     my ($fh2,$halfstart,$halfend) = find_coord($fh,$halfpos,$field_no,$field_sep,$field_pos);
 
-    print "Coordinates for [$coord] at the halfway position are $halfstart - $halfend\n";
+    print STDERR "Coordinates for [$coord] at the halfway position are $halfstart - $halfend\n";
 
     if ($endpos - $startpos <= 1 || ($fsize - $startpos) < 5) {
 	return $fh;
@@ -74,7 +74,7 @@ sub findpos {
 		}
 		sysseek($fh,$pos-2,0);
 		$fh = backup_line($fh);
-		#print "Backed up        - pos ".systell($fh) . "\n";
+		print STDERR "Backed up        - pos ".systell($fh) . "\n";
 	    }
 	    #print join("\t",@f);
 	}
