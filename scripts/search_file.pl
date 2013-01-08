@@ -45,10 +45,12 @@ if (!$id) {
     help(1);
 }
 
-if ($field < 0 || !defined($field)) {
+if ($field < 1 || !defined($field)) {
     print "ERROR: No or invalid field number input\n";
     help(1);
 }
+
+$field = $field - 1;
 
 my $fh = BSearch::search_file_pos($infile, $id,$field,"\t",$pos);
 
@@ -64,7 +66,7 @@ while ($line) {
     if ($str ne $id) {
 	exit(0);
     }
-    print $line;
+    print $line . "\n";
     $line = <$fh>;
 }
 

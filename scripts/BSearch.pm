@@ -38,17 +38,46 @@ sub findpos {
 
     my ($fh2,$halfstart,$halfend) = find_coord($fh,$halfpos,$field_no,$field_sep,$field_pos);
 
-    #print "Coordinates at the halfway position are $halfstart - $halfend\n";
-    
+    print "Coordinates for [$coord] at the halfway position are $halfstart - $halfend\n";
 
     if ($endpos - $startpos <= 1 || ($fsize - $startpos) < 5) {
 	return $fh;
     }
 
     if ($coord >= $halfstart && $coord <= $halfend) {
-	#print "Found pos $fh\n";
-	#Back up one line here
+	#print "Found coord between chunks\n";
+
 	$fh = backup_line($fh2);
+	
+	while ($coord >= $halfstart) {
+	    my @f = get_fields($fh,$field_sep,0);
+
+	    #print "Got new coord ".$f[$field_no] . "\n";
+
+	    $halfstart = substr($f[$field_no],$field_pos);
+
+	    if ($halfstart < $coord) {
+		return $fh;
+	    } else {
+		my $pos = systell($fh);
+
+		if ($pos == 0) {
+		    return $fh;
+		}
+
+		sysseek($fh,$pos-2,0);
+		#print "Backing up twice - pos ".systell($fh) . "\n";
+		$fh = backup_line($fh);
+		$pos = systell($fh);
+		if ($pos == 0) {
+		    return $fh;
+		}
+		sysseek($fh,$pos-2,0);
+		$fh = backup_line($fh);
+		#print "Backed up        - pos ".systell($fh) . "\n";
+	    }
+	    #print join("\t",@f);
+	}
 	return $fh;
     } elsif ($halfstart > $coord) {
 
@@ -65,7 +94,39 @@ sub findpos {
     }
 }
 
+sub get_fields {
+    my ($fh,$field_sep,$resetpos) = @_;
 
+    if ($field_sep eq "") {
+	$field_sep = "\t";
+    }
+
+    my $pos = systell($fh);
+
+    #print "Pos is $pos\n";
+    my $prepos = $pos;
+
+    my $c;
+    my $line;
+
+    while ($c ne "\n") {
+	sysseek($fh,$pos,0);
+	sysread($fh,$c,1);
+	$line .= $c;
+	$pos++;
+    }
+    #print "Found pos $pos line $line\n";
+
+    my @f = split(/$field_sep/,$line);
+
+    if ($resetpos) {
+	sysseek($fh,$prepos,0);
+    }
+
+    return @f;
+}
+
+    
 sub find_coord {
     my ($fh,$halfpos,$field_no,$field_sep,$field_pos) = @_;
 
