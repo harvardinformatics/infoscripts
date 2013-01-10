@@ -12,8 +12,15 @@ sub new {
     bless $self, $class;
     
     $self->setFilename($file);
+    $self->initCache();
 
     return $self;
+}
+
+sub initCache {
+    my ($self) = @_;
+
+    $self->{cache} = {};
 }
 
 sub setFilename {
@@ -39,7 +46,7 @@ sub index {
 	exit(0);
     }
 
-    my $cmd = "samtools index " . $self->{filename};
+    my $cmd = "samtools faidx " . $self->{filename};
 
     print "Indexing file...";
     system($cmd);
@@ -50,7 +57,12 @@ sub index {
 sub getRegion {
     my ($self,$id,$args) = @_;
 
-    my $cmd = "samtools index " . $self->{filename} . " " . $id;
+
+    if (defined($self->{cache}{$id})) {
+	return $self->{cache}{$id};
+    }
+
+    my $cmd = "samtools faidx " . $self->{filename} . " " . $id;
 
     if (defined($args->{start}) && defined($args->{end})) {
 
@@ -77,6 +89,8 @@ sub getRegion {
     while (<$fh>) {
 	$str .= $_;
     }
+    
+    $self->{cache}{$id} = $str;
 
     return $str;
 }
