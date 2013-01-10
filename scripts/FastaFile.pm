@@ -78,8 +78,10 @@ sub getRegion {
 	    exit(0);
 	}
 
-	$cmd .= ":$start=$end";
+	$cmd .= ":$start-$end";
     }
+
+    print "CMD ".$cmd."\n";
     my $fh= new FileHandle();
     
     $fh->open("$cmd |");
@@ -87,7 +89,11 @@ sub getRegion {
     my $str  = "";
     
     while (<$fh>) {
-	$str .= $_;
+	print "LINE " .$_;
+	if ($_ !~ /^>/) {
+	    chomp;
+	    $str .= $_;
+	}
     }
     
     $self->{cache}{$id} = $str;

@@ -103,8 +103,7 @@ foreach my $ref (keys (%out)) {
 
     foreach my $f (@feat) {
 
-	my $qid  = $f->{qname};
-	my $qseq = $qff->getRegion($qid);
+	$f->getAlignment($qff,$rff);
 
 	print $f->{line} . "\n";
     }

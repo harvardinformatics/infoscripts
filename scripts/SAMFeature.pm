@@ -30,7 +30,7 @@ sub newFromString {
     
     $samf->{line}   = $str;
 
-    my %cigdata    = SAMFeature::parseCigar($samf->{cigar});
+    my %cigdata    = $samf->parseCigar($samf->{cigar});
 
     $samf->{cigdata} = \%cigdata;
 
@@ -45,8 +45,48 @@ sub getLength {
     my $delete = $self->{cigdata}{delete};
 }
 
+#For example:
+#RefPos:     1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
+#Reference:  C  C  A  T  A  C  T  G  A  A  C  T  G  A  C  T  A  A  C
+#Read: ACTAGAATGGCT
+#Aligning these two:
+#RefPos:     1  2  3  4  5  6  7     8  9 10 11 12 13 14 15 16 17 18 19
+#Reference:  C  C  A  T  A  C  T     G  A  A  C  T  G  A  C  T  A  A  C
+#Read:                   A  C  T  A  G  A  A     T  G  G  C  T
+#With the alignment above, you get:
+#POS: 5
+#CIGAR: 3M1I3M1D5M
+
+
+# 1I means insert in the reference
+# 1D means insert in the query.
+
+sub getAlignment {
+    my ($self,$rff,$qff) = @_;
+
+
+    my $rid    = $self->{rname}.":".$self->{rstart}."-".$self->{rend};
+    my $qid    = $self->{qname}.":".$self->{qstart}."-".$self->{qend};
+
+    print "Getting region $rid : $qid\n";
+
+    my $rseq   = $qff->getRegion($self->{rname}, {
+	'start' => $self->{rstart},
+	'end'   => $self->{rend}
+				 });
+
+    my $qseq   = $qff->getRegion($self->{qname},{
+	'start' => $self->{qstart},
+	'end'   => $self->{qend}
+				 });
+
+
+    print substr($qseq,0,100);
+    print substr($rseq,0,100);
+
+}
 sub parseCigar {
-    my ($str) = @_;
+    my ($self,$str) = @_;
 
     my @c = split(//,$str);
     
@@ -58,8 +98,10 @@ sub parseCigar {
     my $insert = 0;
     my $delete = 0;
 
-    my $num = "";
+    my $rend   = $self->{rstart};
     my $qend;
+
+    my $num    = "";
 
     while ($i <= $#c) {
 	my $ch = $c[$i];
@@ -80,9 +122,10 @@ sub parseCigar {
 		$qend  += $num;
 	    } elsif ($ch eq "I") {
 		$insert += $num;
+		$qend   += $num;
 	    } elsif ($ch eq "D") {
 		$delete += $num;
-		$qend   += $num;
+		$rend   += $num;
 	    } else {
 		print "ERROR: Unknown cigar char [$ch]\n";
 	    }
@@ -91,6 +134,9 @@ sub parseCigar {
 	$i++;
 
     }
+    $self->{qstart} = $start;
+    $self->{qend} = $qend;
+    $self->{rend} = $rend;
 
     my %out;
 
