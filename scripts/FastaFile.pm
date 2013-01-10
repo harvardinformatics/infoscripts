@@ -81,23 +81,27 @@ sub getRegion {
 	$cmd .= ":$start-$end";
     }
 
-    print "CMD ".$cmd."\n";
-    my $fh= new FileHandle();
+    my $tmpfh= new FileHandle();
     
-    $fh->open("$cmd |");
-    
+    $tmpfh->open("$cmd |");
+
+    #print "CMD $cmd\n";
+
     my $str  = "";
     
-    while (<$fh>) {
-	print "LINE " .$_;
+    while (<$tmpfh>) {
+
 	if ($_ !~ /^>/) {
 	    chomp;
 	    $str .= $_;
 	}
     }
     
-    $self->{cache}{$id} = $str;
+    #$self->{cache}{$id} = $str;
 
+    if (defined($args->{start}) && length($str) != ($args->{end}-$args->{start}+1)) {
+	print "ERROR: String length mismatch - ".lenght($str)."\n";
+    }
     return $str;
 }
 

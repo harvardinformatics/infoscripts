@@ -34,13 +34,14 @@ sub newFromString {
 
     $samf->{cigdata} = \%cigdata;
 
+
     return $samf;
 }
 
 sub getLength {
     my ($self) = @_;
 
-    my $match = $self->{cigdata}{match};
+    my $match  = $self->{cigdata}{match};
     my $insert = $self->{cigdata}{insert};
     my $delete = $self->{cigdata}{delete};
 }
@@ -64,27 +65,104 @@ sub getLength {
 sub getAlignment {
     my ($self,$rff,$qff) = @_;
 
-
     my $rid    = $self->{rname}.":".$self->{rstart}."-".$self->{rend};
     my $qid    = $self->{qname}.":".$self->{qstart}."-".$self->{qend};
+    
+    print "Getting alignment for region $rid : $qid\n\n";
 
-    print "Getting region $rid : $qid\n";
-
-    my $rseq   = $qff->getRegion($self->{rname}, {
+    my $rseq   = $rff->getRegion($self->{rname}, {
 	'start' => $self->{rstart},
 	'end'   => $self->{rend}
 				 });
-
+    
     my $qseq   = $qff->getRegion($self->{qname},{
 	'start' => $self->{qstart},
 	'end'   => $self->{qend}
 				 });
 
+    if ($self->{bflag} == 16) {
+	$qseq   = $qff->getRegion($self->{qname});
+	$qseq = $self->revcomp($qseq);
+	$qseq = substr($qseq,$self->{qstart},($self->{qend}-$self->{qstart}+1));
+    }
+#    print $rid . "\t" . $rseq . "\n";
+#    print $qid . "\t" . $qseq . "\n";
 
-    print substr($qseq,0,100);
-    print substr($rseq,0,100);
+    my $i = 0;
 
+    my @c = split(//,$self->{cigar});
+
+    my $ralign;
+    my $qalign;
+
+    my $num;
+    my $qpos = 0;
+    my $rpos = 0;
+
+    print "Length " . length($rseq) . "\t" . length($qseq) . "\n";
+
+
+    while ($i <= $#c) {
+	if ($rpos > length($rseq)) {
+	    print "ERROR: Reading off the end of ref string $rpos\n";
+	}
+	if ($qpos > length($qseq)) {
+	    print "ERROR: Reading off the end of query string $qpos\n";
+	}
+	my $ch = $c[$i];
+
+	if ($ch =~ /\d/) {
+	    $num .= $ch;
+	} else {
+	    
+	    if ($ch eq "M") {
+		$qalign .= substr($qseq,$qpos,$num);
+		$ralign .= substr($rseq,$rpos,$num);
+		$qpos += $num;
+		$rpos += $num;
+	    } elsif ($ch eq "I") {
+		$qalign .= substr($qseq,$qpos,$num);
+		$ralign .= "-"x$num;
+		$qpos += $num;
+	    } elsif ($ch eq "D") {
+		$qalign .= "-"x$num;
+		$ralign .= substr($rseq,$rpos,$num);
+		$rpos += $num;
+	    }
+	    $num = "";
+	}
+	$i++;
+    }
+ 
+    $self->toStringShort();
+    $self->prettyPrint($ralign,$qalign);
 }
+
+sub toStringShort {
+    my ($self) = @_;
+
+    print $self->{rname} . "\t" . $self->{rstart} . "\t" . $self->{rend} . "\t" . $self->{qname} . "\t" . $self->{qstart} . "\t" . $self->{qend} . "\t" . $self->{bflag} . "\t" . $self->{cigar} . "\n";
+}
+sub prettyPrint {
+    my ($self,$ralign,$qalign) = @_;
+
+    while (length($ralign) > 0) {
+
+	print "\n";
+	printf("%20s %s\n",$self->{rname},substr($ralign,0,80,""));
+	printf("%20s %s\n",$self->{qname},substr($qalign,0,80,""));
+    }
+    print "\n";
+}
+sub revcomp {
+    my ($self,$str) = @_;
+
+    $str = reverse($str);
+    $str =~ tr/acgtACGT/tgcaTGCA/;
+
+    return $str;
+}
+
 sub parseCigar {
     my ($self,$str) = @_;
 
@@ -92,7 +170,7 @@ sub parseCigar {
     
     my $i = 0;
     
-    my $start;
+    my $qstart = 1;
     my $end;
     my $match  = 0;
     my $insert = 0;
@@ -114,18 +192,26 @@ sub parseCigar {
 		if ($i == $#c) {
 		    $end = $num;
 		} else {
-		    $start = $num;
+		    if ($self->{bflag} == 0) {
+			$qstart = $num+1;
+		    } else {
+			$qstart = $num;
+		    }
 		    $qend  = $num;
 		}
 	    } elsif ($ch eq "M") {
 		$match += $num;
 		$qend  += $num;
+		$rend  += $num;
+
 	    } elsif ($ch eq "I") {
 		$insert += $num;
 		$qend   += $num;
+
 	    } elsif ($ch eq "D") {
 		$delete += $num;
 		$rend   += $num;
+
 	    } else {
 		print "ERROR: Unknown cigar char [$ch]\n";
 	    }
@@ -134,13 +220,13 @@ sub parseCigar {
 	$i++;
 
     }
-    $self->{qstart} = $start;
-    $self->{qend} = $qend;
-    $self->{rend} = $rend;
+    $self->{qstart} = $qstart;
+    $self->{qend}   = $qend;
+    $self->{rend}   = $rend;
 
     my %out;
 
-    $out{'start'}  = $start;
+    $out{'qstart'}  = $qstart;
     $out{'qend'}   = $qend;
     $out{'end'}    = $end;
     $out{'match'}  = $match;

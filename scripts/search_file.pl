@@ -61,8 +61,8 @@ if ($pos < 1 || !defined($pos)) {
     help(1);
 }
 
-my $qff = new FastaFile($qfile);
 my $rff = new FastaFile($rfile);
+my $qff = new FastaFile($qfile);
 
 $field = $field - 1;
 $pos   = $pos   - 1;
@@ -74,8 +74,9 @@ my $line = <$fh>;
 my %out;
 
 while ($line) {
+    print $line;
     chomp($line);
-
+    
     my @f = split(/\t/,$line);
 
     my $str = $f[$field];
@@ -90,7 +91,7 @@ while ($line) {
 	
 	push(@{$out{$rname}},$samf);
 	
-	print Dumper($samf);
+	#print Dumper($samf);
 	$line = <$fh>;
     }
 }
@@ -103,9 +104,10 @@ foreach my $ref (keys (%out)) {
 
     foreach my $f (@feat) {
 
-	$f->getAlignment($qff,$rff);
+	$f->getAlignment($rff,$qff);
+	
 
-	print $f->{line} . "\n";
+
     }
 }
 
@@ -117,59 +119,4 @@ sub help {
     if ($exit) {
 	exit(0);
     }
-}
-
-
-sub parseCigar {
-    my ($str) = @_;
-
-    my @c = split(//,$str);
-
-    my $i = 0;
-
-    my $start;
-    my $end;
-    my $match  = 0;
-    my $insert = 0;
-    my $delete = 0;
-
-    my $num = "";
-
-    while ($i <= $#c) {
-	my $ch = $c[$i];
-	if ($ch =~ /\d/) {
-	    $num .= $ch;
-
-	} else {
-	    #print "ENd num $num\n";
-	    if ($ch eq "S") {
-		if ($i == $#c) {
-		    $end = $num;
-		} else {
-		    $start = $num;
-		}
-	    } elsif ($ch eq "M") {
-		$match += $num;
-	    } elsif ($ch eq "I") {
-		$insert += $num;
-	    } elsif ($ch eq "D") {
-		$delete += $num;
-	    } else {
-		print "ERROR: Unknown cigar char [$ch]\n";
-	    }
-	    $num = "";
-	}
-	$i++;
-
-    }
-
-    my %out;
-
-    $out{'start'} = $start;
-    $out{'end'}   = $end;
-    $out{'match'} = $match;
-    $out{'insert'} = $insert;
-    $out{'delete'} = $delete;
-
-    return %out;
 }
