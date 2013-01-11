@@ -100,7 +100,7 @@ sub getRegion {
     #$self->{cache}{$id} = $str;
 
     if (defined($args->{start}) && length($str) != ($args->{end}-$args->{start}+1)) {
-	print "ERROR: String length mismatch - ".lenght($str)."\n";
+	print "ERROR: String length mismatch - ".length($str)."\n";
     }
     return $str;
 }

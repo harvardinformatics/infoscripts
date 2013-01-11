@@ -5,12 +5,14 @@ use strict;
 use BSearch;
 use SAMFeature;
 use FastaFile;
+use Cluster;
 
 $| = 1;
 
 use FileHandle;
 use Getopt::Long;
 use Data::Dumper;
+
 my $samfile;
 my $outfile;
 
@@ -74,7 +76,7 @@ my $line = <$fh>;
 my %out;
 
 while ($line) {
-    print $line;
+
     chomp($line);
     
     my @f = split(/\t/,$line);
@@ -96,19 +98,70 @@ while ($line) {
     }
 }
 
+
+# Cluster the features by rname and coord - allow gap of 100kb? to group things.
+
+
+# Go through each cluster
+
+#   1.  Sort by coord
+
+#   2.  Chain them together by qcoord (deal with forward and reverse strands)
+
+#   2a.  Remove overlapping pieces <= This could be tricky.
+
+#   3.  Get the alignments  - filter by pid?
+
+#   4.  Print the alignments
+
+#   5.  Print the sam lines.
+
+my @allclus;
+
 foreach my $ref (keys (%out)) {
 
     my @feat = @{$out{$ref}};
     
     @feat = sort {$a->{rstart} <=> $b->{rstart}} @feat;
 
-    foreach my $f (@feat) {
+    my @clus = Cluster::cluster_sorted_SAMFeatures(\@feat,100000);
 
-	$f->getAlignment($rff,$qff);
-	
+    push(@allclus,@clus);
+}
 
 
+foreach my $clus (@allclus) {
+    $clus->{length} = $clus->{end} - $clus->{start} + 1;
+}
+@allclus = sort {$b->{length} <=> $a->{length}} @allclus;
+
+foreach my $clus (@allclus) {
+    my @feat = @{$clus->{features}};
+    my $qstart;
+    my $qend;
+    
+    foreach my $feat (@feat) {
+	if (!defined($qstart) || $feat->{qstart}<$qstart) { 
+	    $qstart = $feat->{qstart};
+	}
+	if (!defined($qend)   || $feat->{qend}>$qend)     { 
+	    $qend   = $feat->{qend};
+	}
     }
+    print "Cluster " . scalar(@feat). "\t" . $clus->{rname} . "\t" . $clus->{start} . "\t" . $clus->{end} . "\t" . $clus->{length} . "\t" . $qstart . "\t" . $qend ."\t" . ($qend-$qstart+1) . "\n";
+}
+my $count = 0;
+foreach my $clus (@allclus) {
+    my @feat = @{$clus->{features}};
+    @feat = sort {$a->{rstart} <=> $b->{rstart}} @feat;
+    
+    print "Cluster " . scalar(@feat) . "\t" . $clus->{rname} . "\t" . $clus->{start} . "\t" . $clus->{end} . "\t" . $clus->{length} . "\n";
+    foreach my $f (@feat) {
+	#print $f->{qname} . "\t" . $f->{qstart} . "\t" . $f->{qend} . "\t" . $f->{bflag} . "\n";
+	#$f->getAlignment($rff,$qff);
+	print $count . "\t" . $f->{line} . "\n";
+    }
+    $count++;
 }
 
 sub help {
