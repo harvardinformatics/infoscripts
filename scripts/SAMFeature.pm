@@ -62,6 +62,7 @@ sub getLength {
 # 1I means insert in the reference
 # 1D means insert in the query.
 
+
 sub getAlignment {
     my ($self,$rff,$qff) = @_;
 
@@ -87,6 +88,71 @@ sub getAlignment {
     }
 #    print $rid . "\t" . $rseq . "\n";
 #    print $qid . "\t" . $qseq . "\n";
+
+    my $i = 0;
+
+    my @c = split(//,$self->{cigar});
+
+    my $ralign;
+    my $qalign;
+
+    my $num;
+    my $qpos = 0;
+    my $rpos = 0;
+
+    print "Length " . length($rseq) . "\t" . length($qseq) . "\n";
+
+
+    while ($i <= $#c) {
+	if ($rpos > length($rseq)) {
+	    print "ERROR: Reading off the end of ref string $rpos\n";
+	}
+	if ($qpos > length($qseq)) {
+	    print "ERROR: Reading off the end of query string $qpos\n";
+	}
+	my $ch = $c[$i];
+
+	if ($ch =~ /\d/) {
+	    $num .= $ch;
+	} else {
+	    
+	    if ($ch eq "M") {
+		$qalign .= substr($qseq,$qpos,$num);
+		$ralign .= substr($rseq,$rpos,$num);
+		$qpos += $num;
+		$rpos += $num;
+	    } elsif ($ch eq "I") {
+		$qalign .= substr($qseq,$qpos,$num);
+		$ralign .= "-"x$num;
+		$qpos += $num;
+	    } elsif ($ch eq "D") {
+		$qalign .= "-"x$num;
+		$ralign .= substr($rseq,$rpos,$num);
+		$rpos += $num;
+	    }
+	    $num = "";
+	}
+	$i++;
+    }
+ 
+    $self->toStringShort();
+    $self->prettyPrint($ralign,$qalign);
+}
+
+sub getReadAlignment {
+    my ($self,$rff) = @_;
+
+    my $rid    = $self->{rname}.":".$self->{rstart}."-".$self->{rend};
+    my $qid    = $self->{qname}.":".$self->{qstart}."-".$self->{qend};
+    
+    print "Getting alignment for region $rid : $qid\n\n";
+
+    my $rseq   = $rff->getRegion($self->{rname}, {
+	'start' => $self->{rstart},
+	'end'   => $self->{rend}
+				 });
+    
+    my $qseq  = $self->{seq};
 
     my $i = 0;
 
