@@ -50,6 +50,7 @@ my $line = <$samfh>;
 my $id;
 
 my %out;
+my $max;
 
 while ($line) {
 
@@ -57,16 +58,30 @@ while ($line) {
     
     my @f = split(/\t/,$line);
 
-
     my $samf  = SAMFeature::newFromString($line);
 
     my $rname = $samf->{rname};
 
     if (defined($id) && $samf->{qname} ne $id) {
-	cluster_feat(\%out);
+	if ($max > 1000) {
+	    my $qseq = $qff->getRegion($id);
+	    if (length($qseq) < 200) {
+		print "Length for $id < 200 [".length($qseq)."]. Skipping\n";
+	    } else {
+		print "\nClustering features for id $id " . length($qseq) . "\n\n";
+		cluster_feat(\%out,$id,$qseq,$rff,$qff);
+	    }
+	} else {
+	    print "Skipping id $id - too short $max\n";
+	}
 	%out = ();
+	$max = 0;
     }
     $id = $samf->{qname};
+    my $flen = $samf->{rend} - $samf->{rstart}+1;
+    if ($flen > $max) {
+	$max = $flen;
+    }
 
     push(@{$out{$rname}},$samf);
 
@@ -93,7 +108,7 @@ while ($line) {
 #   5.  Print the sam lines.
 
 sub cluster_feat {
-    my ($out) = @_;
+    my ($out,$id,$qseq,$rff,$qff) = @_;
     my %out = %$out;
 
     my @allclus;
@@ -110,10 +125,6 @@ sub cluster_feat {
     }
     
     
-    foreach my $clus (@allclus) {
-	$clus->{length} = $clus->{end} - $clus->{start} + 1;
-    }
-    @allclus = sort {$b->{length} <=> $a->{length}} @allclus;
     
     foreach my $clus (@allclus) {
 	my @feat = @{$clus->{features}};
@@ -128,18 +139,41 @@ sub cluster_feat {
 		$qend   = $feat->{qend};
 	    }
 	}
-	print "Cluster " . scalar(@feat). "\t" . $clus->{rname} . "\t" . $clus->{start} . "\t" . $clus->{end} . "\t" . $clus->{length} . "\t" . $qstart . "\t" . $qend ."\t" . ($qend-$qstart+1) . "\n";
+	$clus->{qstart} = $qstart;
+	$clus->{qend}   = $qend;
     }
-    my $count = 0;
+
     foreach my $clus (@allclus) {
+	$clus->{length} = $clus->{end} - $clus->{start};
+	$clus->{qlen}   = $clus->{qend} - $clus->{qstart} +1;
+    }
+
+    @allclus = sort {$b->{qlen} <=> $a->{qlen}} @allclus;
+
+    my $count = 0;
+    
+    
+    foreach my $clus (@allclus) {
+
+	if ($count > 1) {
+	    last;
+	}
 	my @feat = @{$clus->{features}};
 	@feat = sort {$a->{rstart} <=> $b->{rstart}} @feat;
-	
-	print "Cluster " . scalar(@feat) . "\t" . $clus->{rname} . "\t" . $clus->{start} . "\t" . $clus->{end} . "\t" . $clus->{length} . "\n";
+
+	my $qend   = $clus->{qend};
+	my $qstart = $clus->{qstart};
+	my $qlen   = length($qseq);
+	my $next   = "-";
+	if ($count < scalar(@allclus)-1) {
+	    $next = $allclus[$count+1]->{qlen};
+	}
+	print "Cluster\t$count\t$id\t" . scalar(@allclus) . "\t" . scalar(@feat). "\t" . $clus->{rname} . "\t" . $clus->{start} . "\t" . $clus->{end} . "\t" . $clus->{length} . "\t" . $qstart . "\t" . $qend ."\t" . ($qend-$qstart+1) . "\t$qlen\t" . (int(100*($qend-$qstart+1)/length($qseq)))."\t$next\n";
+
 	foreach my $f (@feat) {
 	    #print $f->{qname} . "\t" . $f->{qstart} . "\t" . $f->{qend} . "\t" . $f->{bflag} . "\n";
-	    #$f->getAlignment($rff,$qff);
-	    print $count . "\t" . $f->{line} . "\n";
+	    $f->getAlignment($rff,$qff);
+	    #print $count . "\t" . $f->{line} . "\n";
 	}
 	$count++;
     }
@@ -147,7 +181,7 @@ sub cluster_feat {
     sub help {
     my ($exit) = shift;
 
-    print "Usage: search_file.pl -infile <myfile> -outfile <outfile> -id <id> -field <fieldnum>\n";
+    print "Usage: parse_samfile.pl -samfile <myfile> -rfile <reffile> -qfile <queryfile>\n";
 
     if ($exit) {
 	exit(0);
